@@ -92,4 +92,10 @@ sub get_students {
 
     return $self->{repository}->find_all();
 }
+
+sub get_student {
+    my ($self, $id) = @_;
+
+    return $self->{repository}->find_by_id($id);
+}
 1;
