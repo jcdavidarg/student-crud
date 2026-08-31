@@ -7,8 +7,8 @@ use DBI;
 sub connect {
     my $dbh = DBI->connect(
         "dbi:Pg:dbname=students_db;host=localhost",
-        "postgres",
-        "TU_PASSWORD",
+        "students_user",
+        "students123",
         {
             RaiseError => 1,
             AutoCommit => 1
