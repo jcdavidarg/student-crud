@@ -7,10 +7,13 @@ use lib './lib';
 
 use DB;
 use StudentRepository;
+use StudentService;
 
 my $dbh = DB::connect();
 
 my $repository = StudentRepository->new($dbh);
+
+my $service = StudentService->new($repository);
 
 #test find_all
 
@@ -87,5 +90,27 @@ else {
     print "Estudiante no encontrado\n";
 }
 =cut
+
+# testeando Studentservice
+
+my $student = {
+    nombre       => 'Vero',
+    apellido     => 'Lloren',
+    dni          => '1258656721',
+    email        => 'veritooo@email.com',
+    nacionalidad => 'Argentina',
+    telefono     => '342562'
+};
+
+my $result = $service->create_student($student);
+
+if ($result->{success}) {
+    print "Estudiante creado correctamente\n";
+    print "ID: $result->{student}->{id}\n";
+}
+else {
+    print "El estudiante ya existe\n";
+    print "ID existente: $result->{student}->{id}\n";
+}
 
 $dbh->disconnect();
