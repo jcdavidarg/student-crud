@@ -16,3 +16,11 @@ print "DNI: " . $student->dni . "\n";
 print "Email: " . $student->email . "\n";
 print "Nacionalidad: " . $student->nacionalidad . "\n";
 print "Telefono: " . $student->telefono . "\n";
+
+
+print Student::global();
+print Student::global();
+print Student::global();
+print Student::global();
+print Student::global();
+print Student::global();
