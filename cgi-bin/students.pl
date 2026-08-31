@@ -12,9 +12,17 @@ use StudentRepository;
 use StudentService;
 use JSON::PP;
 
-my $cgi = CGI->new;
+my $method = $ENV{'REQUEST_METHOD'} || '';
 
-my $method = $cgi->request_method;
+my $body = '';
+
+if ($method eq 'POST') {
+    my $content_length = $ENV{'CONTENT_LENGTH'} || 0;
+
+    read(STDIN, $body, $content_length);
+}
+
+my $cgi = CGI->new;
 
 my $dbh = DB::connect();
 
@@ -43,6 +51,16 @@ if ($method eq 'GET') {
         print encode_json($students);
     }
 
+}
+elsif ($method eq 'POST') {
+
+    my $student = decode_json($body);
+
+    my $created = $service->create_student($student);
+
+    print "Content-Type: application/json\n\n";
+
+    print encode_json($created);
 }
 else {
 
