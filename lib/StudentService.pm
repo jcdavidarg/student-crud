@@ -86,4 +86,10 @@ sub delete_student {
         student => $existing_student
     };
 }
+
+sub get_students {
+    my ($self) = @_;
+
+    return $self->{repository}->find_all();
+}
 1;
