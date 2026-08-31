@@ -93,6 +93,7 @@ else {
 
 # testeando Studentservice
 
+=pod
 my $student = {
     nombre       => 'Vero',
     apellido     => 'Lloren',
@@ -112,5 +113,91 @@ else {
     print "El estudiante ya existe\n";
     print "ID existente: $result->{student}->{id}\n";
 }
+=cut
+
+# testeando update
+
+=pod
+my $student = {
+    nombre       => 'Juan Carlos',
+    apellido     => 'Gomez',
+    dni          => '87654321',
+    email        => 'juan@test.com',
+    nacionalidad => 'Argentina',
+    telefono     => '1188888888'
+};
+
+my $updated = $repository->update(2, $student);
+
+if ($updated) {
+    print "Estudiante actualizado\n";
+    print "ID: $updated->{id}\n";
+    print "Nombre: $updated->{nombre}\n";
+    print "Apellido: $updated->{apellido}\n";
+    print "DNI: $updated->{dni}\n";
+    print "Email: $updated->{email}\n";
+    print "Teléfono: $updated->{telefono}\n";
+}
+else {
+    print "Estudiante no encontrado\n";
+}
+=cut
+
+# testeando delete user
+
+=pod
+my $deleted = $repository->delete(4);
+
+if ($deleted) {
+    print "Estudiante eliminado\n";
+    print "ID eliminado: $deleted->{id}\n";
+}
+else {
+    print "Estudiante no encontrado\n";
+}
+=cut
+
+# servide update testeando
+
+=pod
+my $student = {
+    nombre       => 'Alejandra',
+    apellido     => 'DeGennaro',
+    dni          => '1258658',
+    email        => 'vero33@test.com',
+    nacionalidad => 'Argentina',
+    telefono     => '1188888'
+};
+
+my $result = $service->update_student(6, $student);
+
+if ($result->{success}) {
+    print "Estudiante actualizado correctamente\n";
+    print "ID: $result->{student}->{id}\n";
+    print "Nombre: $result->{student}->{nombre}\n";
+    print "Apellido: $result->{student}->{apellido}\n";
+    print "DNI: $result->{student}->{dni}\n";
+    print "Email: $result->{student}->{email}\n";
+    print "Teléfono: $result->{student}->{telefono}\n";
+}
+else {
+    print "El estudiante ya existe\n";
+    print "ID existente: $result->{student}->{id}\n";
+}
+=cut
+
+# servide delete testeando
+
+=pod
+my $result = $service->delete_student(2);
+
+if ($result->{success}) {
+    print "Estudiante eliminado\n";
+    print "ID eliminado: $result->{student}->{id}\n";
+}
+else {
+    print "Estudiante no encontrado\n";
+}
+=cut
 
 $dbh->disconnect();

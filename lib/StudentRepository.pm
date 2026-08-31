@@ -120,4 +120,53 @@ sub find_by_dni {
     return $sth->fetchrow_hashref();
 }
 
+sub update {
+    my ($self, $id, $student) = @_;
+
+    my $sql = '
+        UPDATE estudiantes
+        SET
+            nombre = ?,
+            apellido = ?,
+            dni = ?,
+            email = ?,
+            nacionalidad = ?,
+            telefono = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        RETURNING
+            id,
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($student->{nombre}, $student->{apellido}, $student->{dni},
+        $student->{email},    $student->{nacionalidad},
+        $student->{telefono}, $id);
+
+    return $sth->fetchrow_hashref();
+}
+
+sub delete {
+    my ($self, $id) = @_;
+
+    my $sql = '
+        DELETE FROM estudiantes
+        WHERE id = ?
+        RETURNING id
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($id);
+
+    return $sth->fetchrow_hashref();
+}
+
 1;
