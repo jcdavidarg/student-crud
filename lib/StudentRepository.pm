@@ -40,5 +40,84 @@ sub find_all {
     return \@students;
 }
 
+sub find_by_id {
+    my ($self, $id) = @_;
+
+    my $sql = '
+        SELECT
+            id,
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+        FROM estudiantes
+        WHERE id = ?
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($id);
+
+    return $sth->fetchrow_hashref();
+}
+
+sub create {
+    my ($self, $student) = @_;
+
+    my $sql = '
+        INSERT INTO estudiantes (
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        RETURNING
+            id,
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute(
+        $student->{nombre},       $student->{apellido},
+        $student->{dni},          $student->{email},
+        $student->{nacionalidad}, $student->{telefono}
+    );
+
+    return $sth->fetchrow_hashref();
+}
+
+sub find_by_dni {
+    my ($self, $dni) = @_;
+
+    my $sql = '
+        SELECT
+            id,
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+        FROM estudiantes
+        WHERE dni = ?
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($dni);
+
+    return $sth->fetchrow_hashref();
+}
 
 1;
