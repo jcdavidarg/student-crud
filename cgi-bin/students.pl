@@ -56,11 +56,41 @@ elsif ($method eq 'POST') {
 
     my $student = decode_json($body);
 
-    my $created = $service->create_student($student);
+    # validacion, campos necesarios
+    unless (defined $student->{nombre}
+        && defined $student->{apellido}
+        && defined $student->{dni}
+        && defined $student->{email})
+    {
 
+        print "Status: 400 Bad Request\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json(
+            {
+                error => "Faltan campos obligatorios"
+            }
+        );
+
+        exit;
+    }
+
+    my $result = $service->create_student($student);
+
+    if (!$result->{success} && $result->{reason} eq 'student_exists') {
+
+        print "Status: 409 Conflict\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json($result);
+
+        exit;
+    }
+
+    print "Status: 201 Created\n";
     print "Content-Type: application/json\n\n";
 
-    print encode_json($created);
+    print encode_json($result);
 }
 else {
 
