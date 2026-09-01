@@ -142,9 +142,23 @@ elsif ($method eq 'POST') {
 
     my $result = $service->create_student($student);
 
-    if (!$result->{success} && $result->{reason} eq 'student_exists') {
+    if (!$result->{success}) {
 
-        print "Status: 409 Conflict\n";
+        if ($result->{reason} eq 'student_exists') {
+
+            print "Status: 409 Conflict\n";
+
+        }
+        elsif ($result->{reason} eq 'email_already_exists') {
+
+            print "Status: 409 Conflict\n";
+
+        }
+        elsif ($result->{reason} eq 'database_error') {
+
+            print "Status: 500 Internal Server Error\n";
+        }
+
         print "Content-Type: application/json\n\n";
 
         print encode_json($result);
@@ -211,6 +225,7 @@ elsif ($method eq 'PUT') {
 
     my $result = $service->update_student($id, $student);
 
+
     if (!$result->{success}) {
 
         if ($result->{reason} eq 'student_not_found') {
@@ -220,6 +235,14 @@ elsif ($method eq 'PUT') {
         elsif ($result->{reason} eq 'dni_already_exists') {
 
             print "Status: 409 Conflict\n";
+        }
+        elsif ($result->{reason} eq 'email_already_exists') {
+
+            print "Status: 409 Conflict\n";
+        }
+        elsif ($result->{reason} eq 'database_error') {
+
+            print "Status: 500 Internal Server Error\n";
         }
 
         print "Content-Type: application/json\n\n";
