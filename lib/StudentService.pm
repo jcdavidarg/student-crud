@@ -25,7 +25,25 @@ sub create_student {
         };
     }
 
+    my $existing_email =
+      $self->{repository}->find_by_email($student->{email});
+
+    if ($existing_email) {
+        return {
+            success => 0,
+            reason  => 'email_already_exists',
+            student => $existing_email
+        };
+    }
+
     my $created = $self->{repository}->create($student);
+
+    if (!$created) {
+        return {
+            success => 0,
+            reason  => 'database_error'
+        };
+    }
 
     return {
         success => 1,
@@ -47,6 +65,7 @@ sub update_student {
     }
 
     if ($student->{dni} ne $existing_student->{dni}) {
+
         my $student_with_dni =
           $self->{repository}->find_by_dni($student->{dni});
 
@@ -59,7 +78,28 @@ sub update_student {
         }
     }
 
+    if ($student->{email} ne $existing_student->{email}) {
+
+        my $student_with_email =
+          $self->{repository}->find_by_email_except_id($student->{email}, $id);
+
+        if ($student_with_email) {
+            return {
+                success => 0,
+                reason  => 'email_already_exists',
+                student => $student_with_email
+            };
+        }
+    }
+
     my $updated = $self->{repository}->update($id, $student);
+
+    if (!$updated) {
+        return {
+            success => 0,
+            reason  => 'database_error'
+        };
+    }
 
     return {
         success => 1,
