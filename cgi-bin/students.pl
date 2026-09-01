@@ -29,6 +29,7 @@ my $dbh = DB::connect();
 my $repository = StudentRepository->new($dbh);
 my $service    = StudentService->new($repository);
 
+# GET STUDENTS AND STUDENT BY ID
 if ($method eq 'GET') {
 
     my $id = $cgi->param('id');
@@ -37,10 +38,24 @@ if ($method eq 'GET') {
 
         my $student = $service->get_student($id);
 
+        if (!$student) {
+
+            print "Status: 404 Not Found\n";
+            print "Content-Type: application/json\n\n";
+
+            print encode_json(
+                {
+                    error => "Estudiante no encontrado"
+                }
+            );
+
+            exit;
+        }
+
+        print "Status: 200 OK\n";
         print "Content-Type: application/json\n\n";
 
         print encode_json($student);
-
     }
     else {
 
@@ -51,7 +66,7 @@ if ($method eq 'GET') {
         print encode_json($students);
     }
 
-}
+}    # CREATE STUDENT
 elsif ($method eq 'POST') {
 
     my $student = decode_json($body);
