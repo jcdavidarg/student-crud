@@ -16,7 +16,7 @@ my $method = $ENV{'REQUEST_METHOD'} || '';
 
 my $body = '';
 
-if ($method eq 'POST') {
+if ($method eq 'POST' || $method eq 'PUT') {
     my $content_length = $ENV{'CONTENT_LENGTH'} || 0;
 
     read(STDIN, $body, $content_length);
@@ -103,6 +103,90 @@ elsif ($method eq 'POST') {
     }
 
     print "Status: 201 Created\n";
+    print "Content-Type: application/json\n\n";
+
+    print encode_json($result);
+}    # UPDATE STUDENT
+elsif ($method eq 'PUT') {
+
+    my $id = $cgi->url_param('id');
+
+    unless (defined $id) {
+
+        print "Status: 400 Bad Request\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json(
+            {
+                error => "El id es obligatorio"
+            }
+        );
+
+        exit;
+    }
+
+    my $student = decode_json($body);
+
+    my $result = $service->update_student($id, $student);
+
+    if (!$result->{success}) {
+
+        if ($result->{reason} eq 'student_not_found') {
+
+            print "Status: 404 Not Found\n";
+        }
+        elsif ($result->{reason} eq 'dni_already_exists') {
+
+            print "Status: 409 Conflict\n";
+        }
+
+        print "Content-Type: application/json\n\n";
+
+        print encode_json($result);
+
+        exit;
+    }
+
+    print "Status: 200 OK\n";
+    print "Content-Type: application/json\n\n";
+
+    print encode_json($result);
+}    # DELETE STUDENT
+elsif ($method eq 'DELETE') {
+
+    my $id = $cgi->url_param('id');
+
+    unless (defined $id) {
+
+        print "Status: 400 Bad Request\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json(
+            {
+                error => "El id es obligatorio"
+            }
+        );
+
+        exit;
+    }
+
+    my $result = $service->delete_student($id);
+
+    if (!$result->{success}) {
+
+        if ($result->{reason} eq 'student_not_found') {
+
+            print "Status: 404 Not Found\n";
+        }
+
+        print "Content-Type: application/json\n\n";
+
+        print encode_json($result);
+
+        exit;
+    }
+
+    print "Status: 200 OK\n";
     print "Content-Type: application/json\n\n";
 
     print encode_json($result);
