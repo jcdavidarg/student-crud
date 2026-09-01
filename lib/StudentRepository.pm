@@ -63,6 +63,53 @@ sub find_by_id {
     return $sth->fetchrow_hashref();
 }
 
+sub find_by_email {
+    my ($self, $email) = @_;
+
+    my $sql = '
+        SELECT
+            id,
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+        FROM estudiantes
+        WHERE email = ?
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($email);
+
+    return $sth->fetchrow_hashref();
+}
+
+sub find_by_email_except_id {
+    my ($self, $email, $id) = @_;
+
+    my $sql = '
+        SELECT
+            id,
+            nombre,
+            apellido,
+            dni,
+            email,
+            nacionalidad,
+            telefono
+        FROM estudiantes
+        WHERE email = ?
+          AND id <> ?
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($email, $id);
+
+    return $sth->fetchrow_hashref();
+}
+
 sub create {
     my ($self, $student) = @_;
 
@@ -88,11 +135,19 @@ sub create {
 
     my $sth = $self->{dbh}->prepare($sql);
 
-    $sth->execute(
-        $student->{nombre},       $student->{apellido},
-        $student->{dni},          $student->{email},
-        $student->{nacionalidad}, $student->{telefono}
-    );
+    my $success = eval {
+        $sth->execute(
+            $student->{nombre},       $student->{apellido},
+            $student->{dni},          $student->{email},
+            $student->{nacionalidad}, $student->{telefono}
+        );
+
+        1;
+    };
+
+    if (!$success) {
+        return undef;
+    }
 
     return $sth->fetchrow_hashref();
 }
