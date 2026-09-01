@@ -29,6 +29,43 @@ my $dbh = DB::connect();
 my $repository = StudentRepository->new($dbh);
 my $service    = StudentService->new($repository);
 
+sub validate_student {
+    my ($student) = @_;
+
+    my @required_fields = qw(
+      nombre
+      apellido
+      dni
+      email
+    );
+
+    foreach my $field (@required_fields) {
+
+        if (!defined $student->{$field} || $student->{$field} eq '') {
+            return {
+                valid => 0,
+                error => "El campo '$field' es obligatorio"
+            };
+        }
+    }
+
+    if ($student->{dni} !~ /^\d{8}$/) {
+        return {
+            valid => 0,
+            error => "El DNI debe contener 8 digitos"
+        };
+    }
+
+    if ($student->{email} !~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/) {
+        return {
+            valid => 0,
+            error => "El email no es valido"
+        };
+    }
+
+    return { valid => 1 };
+}
+
 # GET STUDENTS AND STUDENT BY ID
 if ($method eq 'GET') {
 
@@ -69,21 +106,34 @@ if ($method eq 'GET') {
 }    # CREATE STUDENT
 elsif ($method eq 'POST') {
 
-    my $student = decode_json($body);
+    my $student;
 
-    # validacion, campos necesarios
-    unless (defined $student->{nombre}
-        && defined $student->{apellido}
-        && defined $student->{dni}
-        && defined $student->{email})
-    {
+    eval { $student = decode_json($body); };
+
+    if ($@) {
 
         print "Status: 400 Bad Request\n";
         print "Content-Type: application/json\n\n";
 
         print encode_json(
             {
-                error => "Faltan campos obligatorios"
+                error => "JSON invalido"
+            }
+        );
+
+        exit;
+    }
+
+    my $validation = validate_student($student);
+
+    unless ($validation->{valid}) {
+
+        print "Status: 400 Bad Request\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json(
+            {
+                error => $validation->{error}
             }
         );
 
@@ -125,7 +175,39 @@ elsif ($method eq 'PUT') {
         exit;
     }
 
-    my $student = decode_json($body);
+    my $student;
+
+    eval { $student = decode_json($body); };
+
+    if ($@) {
+
+        print "Status: 400 Bad Request\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json(
+            {
+                error => "JSON invalido"
+            }
+        );
+
+        exit;
+    }
+
+    my $validation = validate_student($student);
+
+    unless ($validation->{valid}) {
+
+        print "Status: 400 Bad Request\n";
+        print "Content-Type: application/json\n\n";
+
+        print encode_json(
+            {
+                error => $validation->{error}
+            }
+        );
+
+        exit;
+    }
 
     my $result = $service->update_student($id, $student);
 
