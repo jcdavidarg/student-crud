@@ -66,6 +66,26 @@ sub validate_student {
     return { valid => 1 };
 }
 
+sub send_json {
+    my ($status, $data) = @_;
+
+    print "Status: $status\n";
+    print "Content-Type: application/json\n\n";
+
+    print encode_json($data);
+}
+
+sub send_error {
+    my ($status, $message) = @_;
+
+    send_json(
+        $status,
+        {
+            error => $message
+        }
+    );
+}
+
 # GET STUDENTS AND STUDENT BY ID
 if ($method eq 'GET') {
 
@@ -76,23 +96,11 @@ if ($method eq 'GET') {
         my $student = $service->get_student($id);
 
         if (!$student) {
-
-            print "Status: 404 Not Found\n";
-            print "Content-Type: application/json\n\n";
-
-            print encode_json(
-                {
-                    error => "Estudiante no encontrado"
-                }
-            );
-
+            send_error("404 Not Found", "Estudiante no encontrado");
             exit;
         }
 
-        print "Status: 200 OK\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json($student);
+        send_json("200 OK", $student);
     }
     else {
 
@@ -111,32 +119,14 @@ elsif ($method eq 'POST') {
     eval { $student = decode_json($body); };
 
     if ($@) {
-
-        print "Status: 400 Bad Request\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json(
-            {
-                error => "JSON invalido"
-            }
-        );
-
+        send_error("400 Bad Request", "JSON invalido");
         exit;
     }
 
     my $validation = validate_student($student);
 
     unless ($validation->{valid}) {
-
-        print "Status: 400 Bad Request\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json(
-            {
-                error => $validation->{error}
-            }
-        );
-
+        send_error("400 Bad Request", $validation->{error});
         exit;
     }
 
@@ -146,46 +136,31 @@ elsif ($method eq 'POST') {
 
         if ($result->{reason} eq 'student_exists') {
 
-            print "Status: 409 Conflict\n";
-
+            send_json("409 Conflict", $result);
+            exit;
         }
+
         elsif ($result->{reason} eq 'email_already_exists') {
 
-            print "Status: 409 Conflict\n";
-
+            send_json("409 Conflict", $result);
+            exit;
         }
+
         elsif ($result->{reason} eq 'database_error') {
 
-            print "Status: 500 Internal Server Error\n";
+            send_json("500 Internal Server Error", $result);
+            exit;
         }
-
-        print "Content-Type: application/json\n\n";
-
-        print encode_json($result);
-
-        exit;
     }
 
-    print "Status: 201 Created\n";
-    print "Content-Type: application/json\n\n";
-
-    print encode_json($result);
+    send_json("201 Created", $result);
 }    # UPDATE STUDENT
 elsif ($method eq 'PUT') {
 
     my $id = $cgi->url_param('id');
 
     unless (defined $id) {
-
-        print "Status: 400 Bad Request\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json(
-            {
-                error => "El id es obligatorio"
-            }
-        );
-
+        send_error("400 Bad Request", "El id es obligatorio");
         exit;
     }
 
@@ -194,32 +169,14 @@ elsif ($method eq 'PUT') {
     eval { $student = decode_json($body); };
 
     if ($@) {
-
-        print "Status: 400 Bad Request\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json(
-            {
-                error => "JSON invalido"
-            }
-        );
-
+        send_error("400 Bad Request", "JSON invalido");
         exit;
     }
 
     my $validation = validate_student($student);
 
     unless ($validation->{valid}) {
-
-        print "Status: 400 Bad Request\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json(
-            {
-                error => $validation->{error}
-            }
-        );
-
+        send_error("400 Bad Request", $validation->{error});
         exit;
     }
 
@@ -230,48 +187,32 @@ elsif ($method eq 'PUT') {
 
         if ($result->{reason} eq 'student_not_found') {
 
-            print "Status: 404 Not Found\n";
+            send_json("404 Not Found", $result);
         }
         elsif ($result->{reason} eq 'dni_already_exists') {
 
-            print "Status: 409 Conflict\n";
+            send_json("409 Conflict", $result);
         }
         elsif ($result->{reason} eq 'email_already_exists') {
 
-            print "Status: 409 Conflict\n";
+            send_json("409 Conflict", $result);
         }
         elsif ($result->{reason} eq 'database_error') {
 
-            print "Status: 500 Internal Server Error\n";
+            send_json("500 Internal Server Error", $result);
         }
-
-        print "Content-Type: application/json\n\n";
-
-        print encode_json($result);
 
         exit;
     }
 
-    print "Status: 200 OK\n";
-    print "Content-Type: application/json\n\n";
-
-    print encode_json($result);
+    send_json("200 OK", $result);
 }    # DELETE STUDENT
 elsif ($method eq 'DELETE') {
 
     my $id = $cgi->url_param('id');
 
     unless (defined $id) {
-
-        print "Status: 400 Bad Request\n";
-        print "Content-Type: application/json\n\n";
-
-        print encode_json(
-            {
-                error => "El id es obligatorio"
-            }
-        );
-
+        send_error("400 Bad Request", "El id es obligatorio");
         exit;
     }
 
@@ -280,21 +221,12 @@ elsif ($method eq 'DELETE') {
     if (!$result->{success}) {
 
         if ($result->{reason} eq 'student_not_found') {
-
-            print "Status: 404 Not Found\n";
+            send_json("404 Not Found", $result);
+            exit;
         }
-
-        print "Content-Type: application/json\n\n";
-
-        print encode_json($result);
-
-        exit;
     }
 
-    print "Status: 200 OK\n";
-    print "Content-Type: application/json\n\n";
-
-    print encode_json($result);
+    send_json("200 OK", $result);
 }
 else {
 
