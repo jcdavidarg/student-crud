@@ -391,7 +391,7 @@ btnBuscarEstudiante.addEventListener("click", async function () {
   const valor = buscarEstudianteInput.value.trim();
 
   if (!valor) {
-    mostrarMensaje("Ingresá un ID o email para buscar.", "error");
+    mostrarMensaje("Ingresá un ID.", "error");
 
     return;
   }
@@ -796,7 +796,6 @@ function renderizarInscripciones(inscripciones) {
         <tr>
           <th>ID</th>
           <th>Estudiante</th>
-          <th>Email</th>
           <th>Carrera</th>
           <th>Código</th>
           <th>Fecha</th>
@@ -836,8 +835,6 @@ function renderizarInscripciones(inscripciones) {
             ID: ${estudianteId}
           </small>
         </td>
-
-        <td>-</td>
 
         <td>${carrera}</td>
 
