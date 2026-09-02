@@ -34,10 +34,16 @@
           </div>
 
           <div class="search-box">
+            <select id="tipo-busqueda-estudiante">
+              <option value="id">ID</option>
+              <option value="dni">DNI</option>
+              <option value="email">Email</option>
+            </select>
+
             <input
               type="text"
               id="buscar-estudiante"
-              placeholder="Buscar por ID o email..."
+              placeholder="Buscar por ID..."
             />
 
             <button type="button" id="btn-buscar-estudiante">Buscar</button>

@@ -54,6 +54,24 @@ async function obtenerEstudiantePorId(id) {
   return data;
 }
 
+async function obtenerEstudiantePorDni(dni) {
+  const response = await fetch(
+    `${API_BASE}/students?dni=${encodeURIComponent(dni)}`,
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "No se pudo obtener el estudiante.");
+  }
+
+  return data;
+}
+
 async function obtenerEstudiantePorEmail(email) {
   const response = await fetch(
     `${API_BASE}/students?email=${encodeURIComponent(email)}`,
@@ -381,29 +399,54 @@ estudiantesContainer.addEventListener("click", async function (event) {
 // BÚSQUEDA DE ESTUDIANTES
 // ======================================================
 
+const tipoBusquedaEstudiante = document.getElementById(
+  "tipo-busqueda-estudiante",
+);
+
 const buscarEstudianteInput = document.getElementById("buscar-estudiante");
 
 const btnBuscarEstudiante = document.getElementById("btn-buscar-estudiante");
 
 const btnListarEstudiantes = document.getElementById("btn-listar-estudiantes");
 
+function actualizarPlaceholderBusqueda() {
+  const tipoBusqueda = tipoBusquedaEstudiante.value;
+
+  if (tipoBusqueda === "id") {
+    buscarEstudianteInput.placeholder = "Buscar por ID...";
+  } else if (tipoBusqueda === "dni") {
+    buscarEstudianteInput.placeholder = "Buscar por DNI...";
+  } else if (tipoBusqueda === "email") {
+    buscarEstudianteInput.placeholder = "Buscar por email...";
+  }
+}
+
+tipoBusquedaEstudiante.addEventListener("change", function () {
+  buscarEstudianteInput.value = "";
+
+  actualizarPlaceholderBusqueda();
+});
+
 btnBuscarEstudiante.addEventListener("click", async function () {
+  const tipoBusqueda = tipoBusquedaEstudiante.value;
+
   const valor = buscarEstudianteInput.value.trim();
 
   if (!valor) {
-    mostrarMensaje("Ingresá un ID.", "error");
-
+    mostrarMensaje("Ingresá un valor para buscar.", "error");
     return;
   }
 
   try {
     ocultarMensaje();
 
-    let estudiante;
+    let estudiante = null;
 
-    if (/^\d+$/.test(valor)) {
+    if (tipoBusqueda === "id") {
       estudiante = await obtenerEstudiantePorId(valor);
-    } else {
+    } else if (tipoBusqueda === "dni") {
+      estudiante = await obtenerEstudiantePorDni(valor);
+    } else if (tipoBusqueda === "email") {
       estudiante = await obtenerEstudiantePorEmail(valor);
     }
 
@@ -415,11 +458,7 @@ btnBuscarEstudiante.addEventListener("click", async function () {
       return;
     }
 
-    if (Array.isArray(estudiante)) {
-      renderizarEstudiantes(estudiante);
-    } else {
-      renderizarEstudiantes([estudiante]);
-    }
+    renderizarEstudiantes([estudiante]);
   } catch (error) {
     console.error(error);
 
@@ -430,8 +469,14 @@ btnBuscarEstudiante.addEventListener("click", async function () {
 btnListarEstudiantes.addEventListener("click", async function () {
   buscarEstudianteInput.value = "";
 
+  tipoBusquedaEstudiante.value = "id";
+
+  actualizarPlaceholderBusqueda();
+
   await cargarEstudiantes();
 });
+
+actualizarPlaceholderBusqueda();
 
 // ======================================================
 // CARRERAS

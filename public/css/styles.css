@@ -194,12 +194,13 @@ button:disabled {
 
 .search-box {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 140px 1fr auto auto;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.search-box input {
+.search-box input,
+.search-box select {
   width: 100%;
   padding: 12px;
   border: 1px solid #315777;
@@ -213,10 +214,16 @@ button:disabled {
   color: #8ba3b8;
 }
 
-.search-box input:focus {
+.search-box input:focus,
+.search-box select:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.search-box select option {
+  background: #173a5e;
+  color: #e2e8f0;
 }
 
 .search-box button {
