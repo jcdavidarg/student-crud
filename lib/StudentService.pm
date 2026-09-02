@@ -138,4 +138,16 @@ sub get_student {
 
     return $self->{repository}->find_by_id($id);
 }
+
+sub get_student_by_dni {
+    my ($self, $dni) = @_;
+
+    return $self->{repository}->find_by_dni($dni);
+}
+
+sub get_student_by_email {
+    my ($self, $email) = @_;
+
+    return $self->{repository}->find_by_email($email);
+}
 1;

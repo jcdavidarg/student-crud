@@ -86,21 +86,29 @@ sub send_error {
     );
 }
 
-# GET STUDENTS AND STUDENT BY ID
+# GET STUDENTS / STUDENT BY ID / DNI / EMAIL
 if ($method eq 'GET') {
 
-    my $id = $cgi->param('id');
+    my $id    = $cgi->param('id');
+    my $dni   = $cgi->param('dni');
+    my $email = $cgi->param('email');
+
+    my $student;
 
     if (defined $id) {
 
-        my $student = $service->get_student($id);
+        $student = $service->get_student($id);
 
-        if (!$student) {
-            send_error("404 Not Found", "Estudiante no encontrado");
-            exit;
-        }
+    }
+    elsif (defined $dni) {
 
-        send_json("200 OK", $student);
+        $student = $service->get_student_by_dni($dni);
+
+    }
+    elsif (defined $email) {
+
+        $student = $service->get_student_by_email($email);
+
     }
     else {
 
@@ -109,8 +117,20 @@ if ($method eq 'GET') {
         print "Content-Type: application/json\n\n";
 
         print encode_json($students);
+
+        exit;
     }
 
+
+    if (!$student) {
+
+        send_error("404 Not Found", "Estudiante no encontrado");
+
+        exit;
+    }
+
+
+    send_json("200 OK", $student);
 }    # CREATE STUDENT
 elsif ($method eq 'POST') {
 
