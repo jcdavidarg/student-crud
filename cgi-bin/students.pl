@@ -177,7 +177,7 @@ elsif ($method eq 'POST') {
 }    # UPDATE STUDENT
 elsif ($method eq 'PUT') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
         send_error("400 Bad Request", "El id es obligatorio");
@@ -229,7 +229,7 @@ elsif ($method eq 'PUT') {
 }    # DELETE STUDENT
 elsif ($method eq 'DELETE') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
         send_error("400 Bad Request", "El id es obligatorio");
@@ -261,41 +261,4 @@ else {
 
 $dbh->disconnect();
 
-=pod
-my $students = [
-    {
-        id       => 1,
-        nombre   => 'David',
-        apellido => 'Perez'
-    },
-    {
-        id       => 2,
-        nombre   => 'Juan',
-        apellido => 'Gomez'
-    }
-];
-=cut
 
-=pod
-my $dbh = DB::connect();
-
-my $repository = StudentRepository->new($dbh);
-my $service    = StudentService->new($repository);
-
-my $students = $service->get_students();
-
-print "Content-Type: application/json\n\n";
-
-print encode_json($students);
-
-$dbh->disconnect();
-=cut
-
-=pod
-my $cgi = CGI->new;
-
-my $method = $cgi->request_method;
-
-print "Content-Type: text/plain\n\n";
-print "Metodo HTTP: $method\n";
-=cut

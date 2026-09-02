@@ -162,3 +162,58 @@ Acceso a DB
 PostgreSQL
 
 
+
+4 INSTALACIÓN Y EJECUCIÓN
+
+Requisitos:
+    - Perl 5 con módulos: DBI, DBD::Pg, CGI, JSON::PP
+    - PostgreSQL
+    - Servidor web con soporte CGI (Apache recomendado)
+
+1. Crear la base de datos:
+
+       sudo -u postgres createdb students_db
+
+2. Crear el usuario y darle permisos:
+
+       sudo -u postgres psql -c "
+         CREATE USER students_user WITH PASSWORD 'students123';
+         GRANT ALL PRIVILEGES ON DATABASE students_db TO students_user;
+       "
+
+3. Ejecutar el schema:
+
+       psql -h localhost -U students_user -d students_db -f sql/schema.sql
+
+4. Configurar las credenciales:
+
+   El archivo lib/DB.pm contiene la conexión (dbname=students_db,
+   usuario=students_user, password=students123). Si tus credenciales
+   difieren, actualizalas ahí.
+
+5. Servir la aplicación:
+
+   Si usás Apache con CGI habilitado, el .htaccess redirige:
+       /  -> public/index.html
+       /admin -> public/admin/index.html
+       /students, /carreras, /inscripciones -> cgi-bin
+
+   Asegurate de que se cargue el módulo rewrite (a2enmod rewrite).
+
+6. Acceder:
+
+   - Parte pública (formulario de inscripción): /
+   - Parte privada (ABM): /admin (protegida por .htaccess)
+
+Estructura de tablas (3 tablas, 1 estudiante -> 1 carrera):
+
+    carreras (id, nombre, codigo)
+    estudiantes (id, nombre, apellido, dni UNIQUE, email UNIQUE, ...)
+    inscripciones (id, estudiante_id UNIQUE -> estudiantes.id,
+                   carrera_id -> carreras.id)
+
+   La restricción UNIQUE sobre inscripciones.estudiante_id garantiza que
+   un estudiante solo pueda estar inscripto en una única carrera, mientras
+   que una carrera puede tener muchos estudiantes.
+
+

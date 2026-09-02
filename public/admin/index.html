@@ -169,9 +169,39 @@
               <p>Consultá y administrá las inscripciones.</p>
             </div>
 
-            <button type="button" id="btn-listar-inscripciones">
-              Actualizar
+            <button type="button" id="btn-nueva-inscripcion">
+              Nueva inscripción
             </button>
+          </div>
+
+          <div id="form-inscripcion" class="admin-form hidden">
+            <h3>Nueva inscripción</h3>
+
+            <form id="inscripcion-form">
+              <div class="form-group">
+                <label for="inscripcion-estudiante">Estudiante</label>
+
+                <select id="inscripcion-estudiante" required>
+                  <option value="">Seleccioná un estudiante...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="inscripcion-carrera">Carrera</label>
+
+                <select id="inscripcion-carrera" required>
+                  <option value="">Seleccioná una carrera...</option>
+                </select>
+              </div>
+
+              <div class="admin-form-actions">
+                <button type="submit">Guardar inscripción</button>
+
+                <button type="button" id="btn-cancelar-inscripcion">
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
 
           <div id="inscripciones-container" class="table-container"></div>

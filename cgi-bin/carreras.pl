@@ -135,7 +135,7 @@ elsif ($method eq 'POST') {
 # UPDATE CARRERA
 elsif ($method eq 'PUT') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
 
@@ -196,7 +196,7 @@ elsif ($method eq 'PUT') {
 # DELETE CARRERA
 elsif ($method eq 'DELETE') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
 

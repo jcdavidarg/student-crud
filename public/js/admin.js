@@ -780,10 +780,6 @@ carrerasContainer.addEventListener("click", async function (event) {
 // INSCRIPCIONES
 // ======================================================
 
-const btnListarInscripciones = document.getElementById(
-  "btn-listar-inscripciones",
-);
-
 async function obtenerInscripciones() {
   const response = await fetch(`${API_BASE}/inscripciones`);
 
@@ -805,6 +801,26 @@ async function obtenerInscripcionPorId(id) {
 
   if (!response.ok) {
     throw new Error(data.error || "No se pudo obtener la inscripción.");
+  }
+
+  return data;
+}
+
+async function crearInscripcionAdmin(datos) {
+  const response = await fetch(`${API_BASE}/inscripciones`, {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify(datos),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "No se pudo crear la inscripción.");
   }
 
   return data;
@@ -924,6 +940,10 @@ btnListarInscripciones.addEventListener("click", async function () {
   await cargarInscripciones();
 });
 
+btnListarInscripciones.addEventListener("click", async function () {
+  await cargarInscripciones();
+});
+
 inscripcionesContainer.addEventListener("click", async function (event) {
   const btnEliminar = event.target.closest(".btn-eliminar-inscripcion");
 
@@ -948,6 +968,117 @@ inscripcionesContainer.addEventListener("click", async function (event) {
   } catch (error) {
     console.error(error);
 
+    mostrarMensaje(error.message, "error");
+  }
+});
+
+// ======================================================
+// FORMULARIO DE INSCRIPCIÓN
+// ======================================================
+
+const formInscripcion = document.getElementById("form-inscripcion");
+
+const inscripcionForm = document.getElementById("inscripcion-form");
+
+const btnNuevaInscripcion = document.getElementById("btn-nueva-inscripcion");
+
+const btnCancelarInscripcion = document.getElementById(
+  "btn-cancelar-inscripcion",
+);
+
+const selectEstudianteInscripcion = document.getElementById(
+  "inscripcion-estudiante",
+);
+
+const selectCarreraInscripcion = document.getElementById(
+  "inscripcion-carrera",
+);
+
+async function cargarOpcionesInscripcion() {
+  const estudiantes = await obtenerEstudiantes();
+
+  const carreras = await obtenerCarreras();
+
+  selectEstudianteInscripcion.innerHTML = "";
+  selectCarreraInscripcion.innerHTML = "";
+
+  const opcionEstudiante = document.createElement("option");
+  opcionEstudiante.value = "";
+  opcionEstudiante.textContent = "Seleccioná un estudiante...";
+  selectEstudianteInscripcion.appendChild(opcionEstudiante);
+
+  const opcionCarrera = document.createElement("option");
+  opcionCarrera.value = "";
+  opcionCarrera.textContent = "Seleccioná una carrera...";
+  selectCarreraInscripcion.appendChild(opcionCarrera);
+
+  estudiantes.forEach((estudiante) => {
+    const option = document.createElement("option");
+    option.value = estudiante.id;
+    option.textContent = `${estudiante.nombre} ${estudiante.apellido} (${estudiante.dni})`;
+    selectEstudianteInscripcion.appendChild(option);
+  });
+
+  carreras.forEach((carrera) => {
+    const option = document.createElement("option");
+    option.value = carrera.id;
+    option.textContent = `${carrera.nombre} (${carrera.codigo})`;
+    selectCarreraInscripcion.appendChild(option);
+  });
+}
+
+function mostrarFormularioInscripcion() {
+  formInscripcion.classList.remove("hidden");
+}
+
+function ocultarFormularioInscripcion() {
+  formInscripcion.classList.add("hidden");
+  inscripcionForm.reset();
+}
+
+btnNuevaInscripcion.addEventListener("click", async function () {
+  try {
+    ocultarMensaje();
+    await cargarOpcionesInscripcion();
+    mostrarFormularioInscripcion();
+  } catch (error) {
+    console.error(error);
+    mostrarMensaje(error.message, "error");
+  }
+});
+
+btnCancelarInscripcion.addEventListener("click", function () {
+  ocultarFormularioInscripcion();
+});
+
+inscripcionForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  try {
+    ocultarMensaje();
+
+    const datos = {
+      estudiante_id: selectEstudianteInscripcion.value,
+      carrera_id: selectCarreraInscripcion.value,
+    };
+
+    if (!datos.estudiante_id) {
+      throw new Error("Seleccioná un estudiante.");
+    }
+
+    if (!datos.carrera_id) {
+      throw new Error("Seleccioná una carrera.");
+    }
+
+    await crearInscripcionAdmin(datos);
+
+    mostrarMensaje("Inscripción creada correctamente.", "success");
+
+    ocultarFormularioInscripcion();
+
+    await cargarInscripciones();
+  } catch (error) {
+    console.error(error);
     mostrarMensaje(error.message, "error");
   }
 });

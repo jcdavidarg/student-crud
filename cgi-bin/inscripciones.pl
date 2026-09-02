@@ -219,7 +219,7 @@ elsif ($method eq 'POST') {
             if ($result->{reason} eq 'inscripcion_already_exists') {
 
                 send_error("409 Conflict",
-                    "El estudiante ya esta inscripto en esta carrera");
+                    "El estudiante ya está inscripto en esta carrera.");
                 exit;
             }
 
@@ -279,7 +279,7 @@ elsif ($method eq 'POST') {
             if ($result->{reason} eq 'inscripcion_already_exists') {
 
                 send_error("409 Conflict",
-                    "El estudiante ya esta inscripto en esta carrera");
+                    "El estudiante ya está inscripto en esta carrera.");
                 exit;
             }
 
@@ -299,7 +299,7 @@ elsif ($method eq 'POST') {
 
 elsif ($method eq 'DELETE') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
 
