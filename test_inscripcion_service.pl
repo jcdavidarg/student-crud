@@ -8,7 +8,7 @@ use lib "$FindBin::Bin/lib";
 
 use DB;
 use StudentRepository;
-use MateriaRepository;
+use CarreraRepository;
 use InscripcionRepository;
 use InscripcionService;
 use Data::Dumper;
@@ -17,13 +17,13 @@ my $dbh = DB::connect();
 
 my $student_repository = StudentRepository->new($dbh);
 
-my $materia_repository = MateriaRepository->new($dbh);
+my $carrera_repository = CarreraRepository->new($dbh);
 
 my $inscripcion_repository = InscripcionRepository->new($dbh);
 
 my $service =
   InscripcionService->new($inscripcion_repository, $student_repository,
-    $materia_repository);
+    $carrera_repository);
 
 
 print "\n=== GET INSCRIPCIONES ===\n";
@@ -61,11 +61,11 @@ my $student_not_found = $service->create_inscripcion(999, 1);
 print Dumper($student_not_found);
 
 
-print "\n=== CREATE CON MATERIA INEXISTENTE ===\n";
+print "\n=== CREATE CON CARRERA INEXISTENTE ===\n";
 
-my $materia_not_found = $service->create_inscripcion(1, 999);
+my $carrera_not_found = $service->create_inscripcion(1, 999);
 
-print Dumper($materia_not_found);
+print Dumper($carrera_not_found);
 
 
 print "\n=== CREATE INSCRIPCION VALIDA ===\n";

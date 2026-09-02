@@ -1,4 +1,4 @@
-package MateriaRepository;
+package CarreraRepository;
 
 use strict;
 use warnings;
@@ -19,7 +19,7 @@ sub find_all {
             id,
             nombre,
             codigo
-        FROM materias
+        FROM carreras
         ORDER BY id
     ';
 
@@ -27,13 +27,13 @@ sub find_all {
 
     $sth->execute();
 
-    my @materias;
+    my @carreras;
 
-    while (my $materia = $sth->fetchrow_hashref()) {
-        push @materias, $materia;
+    while (my $carrera = $sth->fetchrow_hashref()) {
+        push @carreras, $carrera;
     }
 
-    return \@materias;
+    return \@carreras;
 }
 
 sub find_by_id {
@@ -44,7 +44,7 @@ sub find_by_id {
             id,
             nombre,
             codigo
-        FROM materias
+        FROM carreras
         WHERE id = ?
     ';
 
@@ -63,7 +63,7 @@ sub find_by_codigo {
             id,
             nombre,
             codigo
-        FROM materias
+        FROM carreras
         WHERE codigo = ?
     ';
 
@@ -75,10 +75,10 @@ sub find_by_codigo {
 }
 
 sub create {
-    my ($self, $materia) = @_;
+    my ($self, $carrera) = @_;
 
     my $sql = '
-        INSERT INTO materias (
+        INSERT INTO carreras (
             nombre,
             codigo
         )
@@ -92,7 +92,7 @@ sub create {
     my $sth = $self->{dbh}->prepare($sql);
 
     my $success = eval {
-        $sth->execute($materia->{nombre}, $materia->{codigo});
+        $sth->execute($carrera->{nombre}, $carrera->{codigo});
 
         1;
     };
@@ -105,10 +105,10 @@ sub create {
 }
 
 sub update {
-    my ($self, $id, $materia) = @_;
+    my ($self, $id, $carrera) = @_;
 
     my $sql = '
-        UPDATE materias
+        UPDATE carreras
         SET
             nombre = ?,
             codigo = ?
@@ -121,7 +121,7 @@ sub update {
 
     my $sth = $self->{dbh}->prepare($sql);
 
-    $sth->execute($materia->{nombre}, $materia->{codigo}, $id);
+    $sth->execute($carrera->{nombre}, $carrera->{codigo}, $id);
 
     return $sth->fetchrow_hashref();
 }
@@ -130,7 +130,7 @@ sub delete {
     my ($self, $id) = @_;
 
     my $sql = '
-        DELETE FROM materias
+        DELETE FROM carreras
         WHERE id = ?
         RETURNING id
     ';

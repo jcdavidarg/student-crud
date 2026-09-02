@@ -9,7 +9,7 @@ use lib "$FindBin::Bin/../lib";
 use CGI;
 use DB;
 use StudentRepository;
-use MateriaRepository;
+use CarreraRepository;
 use InscripcionRepository;
 use InscripcionService;
 use JSON::PP;
@@ -29,13 +29,13 @@ my $dbh = DB::connect();
 
 my $student_repository = StudentRepository->new($dbh);
 
-my $materia_repository = MateriaRepository->new($dbh);
+my $carrera_repository = CarreraRepository->new($dbh);
 
 my $inscripcion_repository = InscripcionRepository->new($dbh);
 
 my $service =
   InscripcionService->new($inscripcion_repository, $student_repository,
-    $materia_repository);
+    $carrera_repository);
 
 
 sub send_json {
@@ -64,7 +64,7 @@ sub validate_inscripcion {
 
     my @required_fields = qw(
       estudiante_id
-      materia_id
+      carrera_id
     );
 
     foreach my $field (@required_fields) {
@@ -85,10 +85,10 @@ sub validate_inscripcion {
         };
     }
 
-    if ($inscripcion->{materia_id} !~ /^\d+$/) {
+    if ($inscripcion->{carrera_id} !~ /^\d+$/) {
         return {
             valid => 0,
-            error => "El materia_id debe ser numerico"
+            error => "El carrera_id debe ser numerico"
         };
     }
 
@@ -137,7 +137,7 @@ elsif ($method eq 'POST') {
     }
 
     my $result = $service->create_inscripcion($inscripcion->{estudiante_id},
-        $inscripcion->{materia_id});
+        $inscripcion->{carrera_id});
 
     if (!$result->{success}) {
 
@@ -152,12 +152,12 @@ elsif ($method eq 'POST') {
             exit;
         }
 
-        if ($result->{reason} eq 'materia_not_found') {
+        if ($result->{reason} eq 'carrera_not_found') {
 
             send_json(
                 "404 Not Found",
                 {
-                    error => "Materia no encontrada"
+                    error => "Carrera no encontrada"
                 }
             );
             exit;
@@ -168,7 +168,7 @@ elsif ($method eq 'POST') {
             send_json(
                 "409 Conflict",
                 {
-                    error => "El estudiante ya esta inscripto en esta materia"
+                    error => "El estudiante ya esta inscripto en esta carrera"
                 }
             );
             exit;

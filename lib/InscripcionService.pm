@@ -5,13 +5,13 @@ use warnings;
 
 sub new {
     my ($class, $inscripcion_repository, $student_repository,
-        $materia_repository)
+        $carrera_repository)
       = @_;
 
     my $self = {
         inscripcion_repository => $inscripcion_repository,
         student_repository     => $student_repository,
-        materia_repository     => $materia_repository
+        carrera_repository     => $carrera_repository
     };
 
     return bless $self, $class;
@@ -30,7 +30,7 @@ sub get_inscripcion {
 }
 
 sub create_inscripcion {
-    my ($self, $estudiante_id, $materia_id) = @_;
+    my ($self, $estudiante_id, $carrera_id) = @_;
 
     # 1. Verificar que exista el estudiante
 
@@ -43,14 +43,14 @@ sub create_inscripcion {
         };
     }
 
-    # 2. Verificar que exista la materia
+    # 2. Verificar que exista la carrera
 
-    my $materia = $self->{materia_repository}->find_by_id($materia_id);
+    my $carrera = $self->{carrera_repository}->find_by_id($carrera_id);
 
-    if (!$materia) {
+    if (!$carrera) {
         return {
             success => 0,
-            reason  => 'materia_not_found'
+            reason  => 'carrera_not_found'
         };
     }
 
@@ -58,7 +58,7 @@ sub create_inscripcion {
 
     my $existing =
       $self->{inscripcion_repository}
-      ->find_by_student_and_subject($estudiante_id, $materia_id);
+      ->find_by_student_and_career($estudiante_id, $carrera_id);
 
     if ($existing) {
         return {
@@ -73,7 +73,7 @@ sub create_inscripcion {
 
     eval {
         $created =
-          $self->{inscripcion_repository}->create($estudiante_id, $materia_id);
+          $self->{inscripcion_repository}->create($estudiante_id, $carrera_id);
     };
 
     if ($@ || !$created) {
@@ -84,7 +84,7 @@ sub create_inscripcion {
     }
 
     # 5. Obtener la inscripción completa
-    #    para devolver el formato con estudiante + materia
+    #    para devolver el formato con estudiante + carrera
 
     my $inscripcion =
       $self->{inscripcion_repository}->find_by_id($created->{id});

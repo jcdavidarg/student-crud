@@ -20,15 +20,15 @@ sub find_all {
             i.estudiante_id,
             e.nombre AS estudiante_nombre,
             e.apellido AS estudiante_apellido,
-            i.materia_id,
-            m.nombre AS materia_nombre,
-            m.codigo AS materia_codigo,
+            i.carrera_id,
+            m.nombre AS carrera_nombre,
+            m.codigo AS carrera_codigo,
             i.fecha_inscripcion
         FROM inscripciones i
         JOIN estudiantes e
             ON e.id = i.estudiante_id
-        JOIN materias m
-            ON m.id = i.materia_id
+        JOIN carreras m
+            ON m.id = i.carrera_id
         ORDER BY i.id
     ';
 
@@ -54,15 +54,15 @@ sub find_by_id {
             i.estudiante_id,
             e.nombre AS estudiante_nombre,
             e.apellido AS estudiante_apellido,
-            i.materia_id,
-            m.nombre AS materia_nombre,
-            m.codigo AS materia_codigo,
+            i.carrera_id,
+            m.nombre AS carrera_nombre,
+            m.codigo AS carrera_codigo,
             i.fecha_inscripcion
         FROM inscripciones i
         JOIN estudiantes e
             ON e.id = i.estudiante_id
-        JOIN materias m
-            ON m.id = i.materia_id
+        JOIN carreras m
+            ON m.id = i.carrera_id
         WHERE i.id = ?
     ';
 
@@ -75,47 +75,47 @@ sub find_by_id {
     return $row ? _format_inscripcion($row) : undef;
 }
 
-sub find_by_student_and_subject {
-    my ($self, $estudiante_id, $materia_id) = @_;
+sub find_by_student_and_career {
+    my ($self, $estudiante_id, $carrera_id) = @_;
 
     my $sql = '
         SELECT
             id,
             estudiante_id,
-            materia_id,
+            carrera_id,
             fecha_inscripcion
         FROM inscripciones
         WHERE estudiante_id = ?
-          AND materia_id = ?
+          AND carrera_id = ?
     ';
 
     my $sth = $self->{dbh}->prepare($sql);
 
-    $sth->execute($estudiante_id, $materia_id);
+    $sth->execute($estudiante_id, $carrera_id);
 
     return $sth->fetchrow_hashref();
 }
 
 sub create {
-    my ($self, $estudiante_id, $materia_id) = @_;
+    my ($self, $estudiante_id, $carrera_id) = @_;
 
     my $sql = '
         INSERT INTO inscripciones (
             estudiante_id,
-            materia_id
+            carrera_id
         )
         VALUES (?, ?)
         RETURNING
             id,
             estudiante_id,
-            materia_id,
+            carrera_id,
             fecha_inscripcion
     ';
 
     my $sth = $self->{dbh}->prepare($sql);
 
     my $success = eval {
-        $sth->execute($estudiante_id, $materia_id);
+        $sth->execute($estudiante_id, $carrera_id);
 
         1;
     };
@@ -155,10 +155,10 @@ sub _format_inscripcion {
             apellido => $row->{estudiante_apellido}
         },
 
-        materia => {
-            id     => $row->{materia_id},
-            nombre => $row->{materia_nombre},
-            codigo => $row->{materia_codigo}
+        carrera => {
+            id     => $row->{carrera_id},
+            nombre => $row->{carrera_nombre},
+            codigo => $row->{carrera_codigo}
         },
 
         fecha_inscripcion => $row->{fecha_inscripcion}

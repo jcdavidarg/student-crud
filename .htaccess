@@ -1,3 +1,5 @@
 RewriteEngine On
 
-RewriteRule ^students/?$ cgi-bin/students.pl [END]
+RewriteRule ^students/?$ cgi-bin/students.pl [L]
+RewriteRule ^carreras/?$ cgi-bin/carreras.pl [L]
+RewriteRule ^inscripciones/?$ cgi-bin/inscripciones.pl [L]

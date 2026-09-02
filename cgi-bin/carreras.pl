@@ -8,8 +8,8 @@ use lib "$FindBin::Bin/../lib";
 
 use CGI;
 use DB;
-use MateriaRepository;
-use MateriaService;
+use CarreraRepository;
+use CarreraService;
 use JSON::PP;
 
 my $method = $ENV{'REQUEST_METHOD'} || '';
@@ -25,11 +25,11 @@ my $cgi = CGI->new;
 
 my $dbh = DB::connect();
 
-my $repository = MateriaRepository->new($dbh);
-my $service    = MateriaService->new($repository);
+my $repository = CarreraRepository->new($dbh);
+my $service    = CarreraService->new($repository);
 
-sub validate_materia {
-    my ($materia) = @_;
+sub validate_carrera {
+    my ($carrera) = @_;
 
     my @required_fields = qw(
       nombre
@@ -37,7 +37,7 @@ sub validate_materia {
     );
 
     foreach my $field (@required_fields) {
-        if (!defined $materia->{$field} || $materia->{$field} eq '') {
+        if (!defined $carrera->{$field} || $carrera->{$field} eq '') {
             return {
                 valid => 0,
                 error => "El campo '$field' es obligatorio"
@@ -67,50 +67,50 @@ sub send_error {
     );
 }
 
-# GET MATERIAS / GET MATERIA BY ID
+# GET CARRERAS / GET CARRERA BY ID
 if ($method eq 'GET') {
 
     my $id = $cgi->param('id');
 
     if (defined $id) {
 
-        my $materia = $service->get_materia($id);
+        my $carrera = $service->get_carrera($id);
 
-        if (!$materia) {
-            send_error("404 Not Found", "Materia no encontrada");
+        if (!$carrera) {
+            send_error("404 Not Found", "Carrera no encontrada");
             exit;
         }
 
-        send_json("200 OK", $materia);
+        send_json("200 OK", $carrera);
     }
     else {
 
-        my $materias = $service->get_materias();
+        my $carreras = $service->get_carreras();
 
-        send_json("200 OK", $materias);
+        send_json("200 OK", $carreras);
     }
 }
 
-# CREATE MATERIA
+# CREATE CARRERA
 elsif ($method eq 'POST') {
 
-    my $materia;
+    my $carrera;
 
-    eval { $materia = decode_json($body); };
+    eval { $carrera = decode_json($body); };
 
     if ($@) {
         send_error("400 Bad Request", "JSON invalido");
         exit;
     }
 
-    my $validation = validate_materia($materia);
+    my $validation = validate_carrera($carrera);
 
     unless ($validation->{valid}) {
         send_error("400 Bad Request", $validation->{error});
         exit;
     }
 
-    my $result = $service->create_materia($materia);
+    my $result = $service->create_carrera($carrera);
 
     if (!$result->{success}) {
 
@@ -132,7 +132,7 @@ elsif ($method eq 'POST') {
     send_json("201 Created", $result);
 }
 
-# UPDATE MATERIA
+# UPDATE CARRERA
 elsif ($method eq 'PUT') {
 
     my $id = $cgi->url_param('id');
@@ -144,9 +144,9 @@ elsif ($method eq 'PUT') {
         exit;
     }
 
-    my $materia;
+    my $carrera;
 
-    eval { $materia = decode_json($body); };
+    eval { $carrera = decode_json($body); };
 
     if ($@) {
 
@@ -155,7 +155,7 @@ elsif ($method eq 'PUT') {
         exit;
     }
 
-    my $validation = validate_materia($materia);
+    my $validation = validate_carrera($carrera);
 
     unless ($validation->{valid}) {
 
@@ -164,11 +164,11 @@ elsif ($method eq 'PUT') {
         exit;
     }
 
-    my $result = $service->update_materia($id, $materia);
+    my $result = $service->update_carrera($id, $carrera);
 
     if (!$result->{success}) {
 
-        if ($result->{reason} eq 'materia_not_found') {
+        if ($result->{reason} eq 'carrera_not_found') {
 
             send_json("404 Not Found", $result);
 
@@ -193,7 +193,7 @@ elsif ($method eq 'PUT') {
     send_json("200 OK", $result);
 }
 
-# DELETE MATERIA
+# DELETE CARRERA
 elsif ($method eq 'DELETE') {
 
     my $id = $cgi->url_param('id');
@@ -205,11 +205,11 @@ elsif ($method eq 'DELETE') {
         exit;
     }
 
-    my $result = $service->delete_materia($id);
+    my $result = $service->delete_carrera($id);
 
     if (!$result->{success}) {
 
-        if ($result->{reason} eq 'materia_not_found') {
+        if ($result->{reason} eq 'carrera_not_found') {
 
             send_json("404 Not Found", $result);
 

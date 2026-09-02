@@ -1,4 +1,4 @@
-package MateriaService;
+package CarreraService;
 
 use strict;
 use warnings;
@@ -11,35 +11,35 @@ sub new {
     return bless $self, $class;
 }
 
-sub get_materias {
+sub get_carreras {
     my ($self) = @_;
 
     return $self->{repository}->find_all();
 }
 
-sub get_materia {
+sub get_carrera {
     my ($self, $id) = @_;
 
     return $self->{repository}->find_by_id($id);
 }
 
-sub create_materia {
-    my ($self, $materia) = @_;
+sub create_carrera {
+    my ($self, $carrera) = @_;
 
-    my $existing_materia =
-      $self->{repository}->find_by_codigo($materia->{codigo});
+    my $existing_carrera =
+      $self->{repository}->find_by_codigo($carrera->{codigo});
 
-    if ($existing_materia) {
+    if ($existing_carrera) {
         return {
             success => 0,
             reason  => 'codigo_already_exists',
-            materia => $existing_materia
+            carrera => $existing_carrera
         };
     }
 
     my $created;
 
-    eval { $created = $self->{repository}->create($materia); };
+    eval { $created = $self->{repository}->create($carrera); };
 
     if ($@ || !$created) {
         return {
@@ -50,39 +50,39 @@ sub create_materia {
 
     return {
         success => 1,
-        materia => $created
+        carrera => $created
     };
 }
 
-sub update_materia {
-    my ($self, $id, $materia) = @_;
+sub update_carrera {
+    my ($self, $id, $carrera) = @_;
 
-    my $existing_materia = $self->{repository}->find_by_id($id);
+    my $existing_carrera = $self->{repository}->find_by_id($id);
 
-    if (!$existing_materia) {
+    if (!$existing_carrera) {
         return {
             success => 0,
-            reason  => 'materia_not_found'
+            reason  => 'carrera_not_found'
         };
     }
 
-    if ($materia->{codigo} ne $existing_materia->{codigo}) {
+    if ($carrera->{codigo} ne $existing_carrera->{codigo}) {
 
-        my $materia_with_codigo =
-          $self->{repository}->find_by_codigo($materia->{codigo});
+        my $carrera_with_codigo =
+          $self->{repository}->find_by_codigo($carrera->{codigo});
 
-        if ($materia_with_codigo) {
+        if ($carrera_with_codigo) {
             return {
                 success => 0,
                 reason  => 'codigo_already_exists',
-                materia => $materia_with_codigo
+                carrera => $carrera_with_codigo
             };
         }
     }
 
     my $updated;
 
-    eval { $updated = $self->{repository}->update($id, $materia); };
+    eval { $updated = $self->{repository}->update($id, $carrera); };
 
     if ($@ || !$updated) {
         return {
@@ -93,19 +93,19 @@ sub update_materia {
 
     return {
         success => 1,
-        materia => $updated
+        carrera => $updated
     };
 }
 
-sub delete_materia {
+sub delete_carrera {
     my ($self, $id) = @_;
 
-    my $existing_materia = $self->{repository}->find_by_id($id);
+    my $existing_carrera = $self->{repository}->find_by_id($id);
 
-    if (!$existing_materia) {
+    if (!$existing_carrera) {
         return {
             success => 0,
-            reason  => 'materia_not_found'
+            reason  => 'carrera_not_found'
         };
     }
 
@@ -122,7 +122,7 @@ sub delete_materia {
 
     return {
         success => 1,
-        materia => $existing_materia
+        carrera => $existing_carrera
     };
 }
 

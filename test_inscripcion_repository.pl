@@ -36,14 +36,14 @@ my $repository = InscripcionRepository->new($dbh);
 
 # print "\n=== FIND BY STUDENT AND SUBJECT ===\n";
 
-# my $existing = $repository->find_by_student_and_subject(1, 1);
+# my $existing = $repository->find_by_student_and_career(1, 1);
 
 # print Dumper($existing);
 
 
 # print "\n=== STUDENT AND SUBJECT INEXISTENTE ===\n";
 
-# my $not_existing = $repository->find_by_student_and_subject(1, 2);
+# my $not_existing = $repository->find_by_student_and_career(1, 2);
 
 # print Dumper($not_existing);
 
