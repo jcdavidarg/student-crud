@@ -120,74 +120,183 @@ if ($method eq 'GET') {
 }
 elsif ($method eq 'POST') {
 
-    my $inscripcion;
+    my $data;
 
-    eval { $inscripcion = decode_json($body); };
+    eval { $data = decode_json($body); };
 
     if ($@) {
         send_error("400 Bad Request", "JSON invalido");
         exit;
     }
 
-    my $validation = validate_inscripcion($inscripcion);
+    # ============================================================
+    # INSCRIPCION PUBLICA
+    # ============================================================
+    #
+    # El frontend publico envia los datos del estudiante
+    # y la carrera. El backend se encarga de resolver
+    # estudiante_id.
+    #
+    if (   exists $data->{nombre}
+        || exists $data->{apellido}
+        || exists $data->{dni}
+        || exists $data->{email})
+    {
 
-    unless ($validation->{valid}) {
-        send_error("400 Bad Request", $validation->{error});
-        exit;
+        # Validar datos minimos del estudiante
+        my @required_student_fields = qw(
+          nombre
+          apellido
+          dni
+          email
+        );
+
+        foreach my $field (@required_student_fields) {
+
+            if (!defined $data->{$field}
+                || $data->{$field} eq '')
+            {
+                send_error("400 Bad Request",
+                    "El campo '$field' es obligatorio");
+                exit;
+            }
+        }
+
+        # Validar carrera
+        if (!defined $data->{carrera_id}
+            || $data->{carrera_id} eq '')
+        {
+            send_error("400 Bad Request",
+                "El campo 'carrera_id' es obligatorio");
+            exit;
+        }
+
+        if ($data->{carrera_id} !~ /^\d+$/) {
+            send_error("400 Bad Request", "El carrera_id debe ser numerico");
+            exit;
+        }
+
+        # Validar DNI
+        if ($data->{dni} !~ /^\d{8}$/) {
+            send_error("400 Bad Request", "El DNI debe contener 8 digitos");
+            exit;
+        }
+
+        # Validar email
+        if ($data->{email} !~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/) {
+            send_error("400 Bad Request", "El email no es valido");
+            exit;
+        }
+
+        my $student_data = {
+            nombre       => $data->{nombre},
+            apellido     => $data->{apellido},
+            dni          => $data->{dni},
+            email        => $data->{email},
+            telefono     => $data->{telefono},
+            nacionalidad => $data->{nacionalidad}
+        };
+
+        my $result =
+          $service->create_inscripcion_publica($student_data,
+            $data->{carrera_id});
+
+        if (!$result->{success}) {
+
+            if ($result->{reason} eq 'carrera_not_found') {
+
+                send_error("404 Not Found", "Carrera no encontrada");
+                exit;
+            }
+
+            if ($result->{reason} eq 'dni_email_conflict') {
+
+                send_error("409 Conflict",
+                    "El DNI y el email pertenecen a estudiantes diferentes");
+                exit;
+            }
+
+            if ($result->{reason} eq 'inscripcion_already_exists') {
+
+                send_error("409 Conflict",
+                    "El estudiante ya esta inscripto en esta carrera");
+                exit;
+            }
+
+            if ($result->{reason} eq 'database_error') {
+
+                send_error(
+                    "500 Internal Server Error",
+                    "Error interno de base de datos"
+                );
+                exit;
+            }
+
+            send_error("500 Internal Server Error", "Error interno");
+            exit;
+        }
+
+        send_json("201 Created", $result->{inscripcion});
     }
 
-    my $result = $service->create_inscripcion($inscripcion->{estudiante_id},
-        $inscripcion->{carrera_id});
+    # ============================================================
+    # INSCRIPCION ADMINISTRATIVA
+    # ============================================================
+    #
+    # El admin sigue enviando:
+    #
+    # {
+    #     estudiante_id: 1,
+    #     carrera_id: 2
+    # }
+    #
+    else {
 
-    if (!$result->{success}) {
+        my $validation = validate_inscripcion($data);
 
-        if ($result->{reason} eq 'student_not_found') {
-
-            send_json(
-                "404 Not Found",
-                {
-                    error => "Estudiante no encontrado"
-                }
-            );
+        unless ($validation->{valid}) {
+            send_error("400 Bad Request", $validation->{error});
             exit;
         }
 
-        if ($result->{reason} eq 'carrera_not_found') {
+        my $result = $service->create_inscripcion($data->{estudiante_id},
+            $data->{carrera_id});
 
-            send_json(
-                "404 Not Found",
-                {
-                    error => "Carrera no encontrada"
-                }
-            );
-            exit;
+        if (!$result->{success}) {
+
+            if ($result->{reason} eq 'student_not_found') {
+
+                send_error("404 Not Found", "Estudiante no encontrado");
+                exit;
+            }
+
+            if ($result->{reason} eq 'carrera_not_found') {
+
+                send_error("404 Not Found", "Carrera no encontrada");
+                exit;
+            }
+
+            if ($result->{reason} eq 'inscripcion_already_exists') {
+
+                send_error("409 Conflict",
+                    "El estudiante ya esta inscripto en esta carrera");
+                exit;
+            }
+
+            if ($result->{reason} eq 'database_error') {
+
+                send_error(
+                    "500 Internal Server Error",
+                    "Error interno de base de datos"
+                );
+                exit;
+            }
         }
 
-        if ($result->{reason} eq 'inscripcion_already_exists') {
-
-            send_json(
-                "409 Conflict",
-                {
-                    error => "El estudiante ya esta inscripto en esta carrera"
-                }
-            );
-            exit;
-        }
-
-        if ($result->{reason} eq 'database_error') {
-
-            send_json(
-                "500 Internal Server Error",
-                {
-                    error => "Error interno de base de datos"
-                }
-            );
-            exit;
-        }
+        send_json("201 Created", $result->{inscripcion});
     }
-
-    send_json("201 Created", $result->{inscripcion});
 }
+
 elsif ($method eq 'DELETE') {
 
     my $id = $cgi->url_param('id');

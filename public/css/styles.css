@@ -1,0 +1,148 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b1f33;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+.page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 50px 20px;
+}
+
+.card {
+  background: #102a43;
+  border-radius: 10px;
+  padding: 35px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.card-header {
+  margin-bottom: 30px;
+}
+
+.card-header h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #e2e8f0;
+}
+
+.card-header p {
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #315777;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #173a5e;
+  color: #e2e8f0;
+}
+
+.form-group input::placeholder {
+  color: #8ba3b8;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.form-group select option {
+  background: #173a5e;
+  color: #e2e8f0;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  display: none;
+  padding: 12px;
+  margin-bottom: 18px;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+.message.success {
+  display: block;
+  background: #123b4a;
+  color: #67e8f9;
+  border: 1px solid #155e75;
+}
+
+.message.error {
+  display: block;
+  background: #451a1a;
+  color: #fecaca;
+  border: 1px solid #7f1d1d;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 20px 12px;
+  }
+
+  .card {
+    padding: 22px;
+  }
+
+  .card-header h1 {
+    font-size: 24px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

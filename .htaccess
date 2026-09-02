@@ -1,5 +1,14 @@
 RewriteEngine On
 
+# Frontend público
+RewriteRule ^$ public/index.html [L]
+RewriteRule ^css/(.*)$ public/css/$1 [L]
+RewriteRule ^js/(.*)$ public/js/$1 [L]
+
+# Panel administrativo
+RewriteRule ^admin/?$ public/admin/index.html [L]
+
+# API
 RewriteRule ^students/?$ cgi-bin/students.pl [L]
 RewriteRule ^carreras/?$ cgi-bin/carreras.pl [L]
 RewriteRule ^inscripciones/?$ cgi-bin/inscripciones.pl [L]
