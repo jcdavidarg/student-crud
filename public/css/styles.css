@@ -13,9 +13,9 @@ body {
 
 .page {
   width: 100%;
-  max-width: 720px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 50px 20px;
+  padding: 40px 20px;
 }
 
 .card {
@@ -39,6 +39,10 @@ body {
   color: #94a3b8;
   line-height: 1.5;
 }
+
+/* ======================================================
+   FORMULARIOS
+   ====================================================== */
 
 .form-row {
   display: grid;
@@ -84,6 +88,10 @@ body {
   color: #e2e8f0;
 }
 
+/* ======================================================
+   BOTONES
+   ====================================================== */
+
 button {
   width: 100%;
   padding: 13px;
@@ -105,6 +113,10 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ======================================================
+   MENSAJES
+   ====================================================== */
 
 .message {
   display: none;
@@ -128,6 +140,232 @@ button:disabled {
   border: 1px solid #7f1d1d;
 }
 
+/* ======================================================
+   UTILIDADES
+   ====================================================== */
+
+.hidden {
+  display: none;
+}
+
+/* ======================================================
+   PANEL ADMINISTRATIVO
+   ====================================================== */
+
+.admin-section {
+  margin-top: 35px;
+  padding-top: 30px;
+  border-top: 1px solid #315777;
+}
+
+.admin-section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  font-size: 21px;
+  margin-bottom: 6px;
+  color: #e2e8f0;
+}
+
+.section-header p {
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.section-header button {
+  width: auto;
+  min-width: 160px;
+}
+
+/* ======================================================
+   BÚSQUEDA
+   ====================================================== */
+
+.search-box {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #315777;
+  border-radius: 6px;
+  background: #173a5e;
+  color: #e2e8f0;
+  font-size: 16px;
+}
+
+.search-box input::placeholder {
+  color: #8ba3b8;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.search-box button {
+  width: auto;
+  min-width: 100px;
+}
+
+/* ======================================================
+   FORMULARIOS ADMIN
+   ====================================================== */
+
+.admin-form {
+  margin-bottom: 25px;
+  padding: 25px;
+  background: #0d243a;
+  border: 1px solid #315777;
+  border-radius: 8px;
+}
+
+.admin-form h3 {
+  margin-bottom: 22px;
+  font-size: 19px;
+  color: #e2e8f0;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-form-actions button {
+  width: auto;
+  min-width: 150px;
+}
+
+/* ======================================================
+   TABLAS
+   ====================================================== */
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #315777;
+  border-radius: 8px;
+  background: #0d243a;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 750px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 13px 12px;
+  text-align: left;
+  border-bottom: 1px solid #315777;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background: #173a5e;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-table td {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: #102f4d;
+}
+
+/* ======================================================
+   BOTONES DE TABLA
+   ====================================================== */
+
+.admin-table td:last-child {
+  white-space: nowrap;
+}
+
+.admin-table td button {
+  width: auto;
+  padding: 8px 12px;
+  margin-right: 6px;
+  font-size: 13px;
+}
+
+.admin-table td button:last-child {
+  margin-right: 0;
+}
+
+/* ======================================================
+   MENSAJE SIN DATOS
+   ====================================================== */
+
+.empty-message {
+  padding: 20px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 800px) {
+  .page {
+    max-width: 100%;
+    padding: 25px 15px;
+  }
+
+  .card {
+    padding: 25px;
+  }
+
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .section-header button {
+    width: 100%;
+  }
+
+  .search-box {
+    grid-template-columns: 1fr;
+  }
+
+  .search-box button {
+    width: 100%;
+  }
+}
+
+.table-secondary {
+  display: block;
+  margin-top: 4px;
+  color: #8ba3b8;
+  font-size: 12px;
+}
+
 @media (max-width: 600px) {
   .page {
     padding: 20px 12px;
@@ -144,5 +382,21 @@ button:disabled {
   .form-row {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .admin-form {
+    padding: 20px;
+  }
+
+  .admin-form-actions {
+    flex-direction: column;
+  }
+
+  .admin-form-actions button {
+    width: 100%;
+  }
+
+  .admin-table {
+    min-width: 700px;
   }
 }
