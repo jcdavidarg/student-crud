@@ -52,7 +52,7 @@ sub send_json {
     my ($status, $data) = @_;
 
     print "Status: $status\n";
-    print "Content-Type: application/json\n\n";
+    print "Content-Type: application/json; charset=utf-8\n\n";
     print encode_json($data);
 }
 

@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
@@ -42,7 +43,7 @@ sub send_json {
     my ($status, $data) = @_;
 
     print "Status: $status\n";
-    print "Content-Type: application/json\n\n";
+    print "Content-Type: application/json; charset=utf-8\n\n";
     print encode_json($data);
 }
 
@@ -223,6 +224,15 @@ elsif ($method eq 'POST') {
                 exit;
             }
 
+            if ($result->{reason} eq 'inscripcion_en_otra_carrera') {
+
+                my $nombre_carrera = $result->{carrera}->{nombre} || 'otra carrera';
+
+                send_error("409 Conflict",
+                    "No se puede inscribir a otra carrera: el estudiante ya está inscripto en '$nombre_carrera'.");
+                exit;
+            }
+
             if ($result->{reason} eq 'database_error') {
 
                 send_error(
@@ -280,6 +290,15 @@ elsif ($method eq 'POST') {
 
                 send_error("409 Conflict",
                     "El estudiante ya está inscripto en esta carrera.");
+                exit;
+            }
+
+            if ($result->{reason} eq 'inscripcion_en_otra_carrera') {
+
+                my $nombre_carrera = $result->{carrera}->{nombre} || 'otra carrera';
+
+                send_error("409 Conflict",
+                    "No se puede inscribir a otra carrera: el estudiante ya está inscripto en '$nombre_carrera'.");
                 exit;
             }
 
