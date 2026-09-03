@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS estudiantes (
 CREATE TABLE IF NOT EXISTS inscripciones (
     id                SERIAL PRIMARY KEY,
     estudiante_id     INTEGER     NOT NULL UNIQUE REFERENCES estudiantes(id) ON DELETE CASCADE,
-    carrera_id        INTEGER     NOT NULL REFERENCES carreras(id) ON DELETE RESTRICT,
+    carrera_id        INTEGER     NOT NULL REFERENCES carreras(id) ON DELETE CASCADE,
     fecha_inscripcion TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
