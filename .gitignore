@@ -1,0 +1,10 @@
+# Secretos y configuracion local
+.env
+
+# Respaldos
+*.backup
+*.bak
+*~
+
+# Logs
+*.log

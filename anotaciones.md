@@ -170,40 +170,26 @@ Requisitos:
     - PostgreSQL
     - Servidor web con soporte CGI (Apache recomendado)
 
-1. Crear la base de datos:
+1. Configurar las credenciales en .env (copiar desde .env.example):
 
-       sudo -u postgres createdb students_db
+       cp .env.example .env
 
-2. Crear el usuario y darle permisos:
+2. Preparar la base (crea rol + base + aplica sql/schema.sql, idempotente):
 
-       sudo -u postgres psql -c "
-         CREATE USER students_user WITH PASSWORD 'students123';
-         GRANT ALL PRIVILEGES ON DATABASE students_db TO students_user;
-       "
+       scripts/setup-db.sh
 
-3. Ejecutar el schema:
+3. Arrancar (detecta Docker si está disponible, sino modo local):
 
-       psql -h localhost -U students_user -d students_db -f sql/schema.sql
+       scripts/start.sh
 
-4. Configurar las credenciales:
+4. Acceder:
 
-   El archivo lib/DB.pm contiene la conexión (dbname=students_db,
-   usuario=students_user, password=students123). Si tus credenciales
-   difieren, actualizalas ahí.
-
-5. Servir la aplicación:
-
-   Si usás Apache con CGI habilitado, el .htaccess redirige:
-       /  -> public/index.html
-       /admin -> public/admin/index.html
-       /students, /carreras, /inscripciones -> cgi-bin
-
-   Asegurate de que se cargue el módulo rewrite (a2enmod rewrite).
-
-6. Acceder:
-
-   - Parte pública (formulario de inscripción): /
-   - Parte privada (ABM): /admin (protegida por .htaccess)
+   - Parte pública (formulario de inscripción):
+        local:  /student-crud/
+        docker: /
+   - Parte privada (ABM, protegida por .htaccess):
+        local:  /student-crud/admin
+        docker: /admin
 
 Estructura de tablas (3 tablas, 1 estudiante -> 1 carrera):
 
@@ -220,11 +206,8 @@ Estructura de tablas (3 tablas, 1 estudiante -> 1 carrera):
    - Al borrar un estudiante -> se borran sus inscripciones (CASCADE).
    - Al borrar una carrera   -> se borran sus inscripciones (CASCADE).
 
-   Si ya creaste la base con una versión anterior del schema (donde
-   carrera_id tenía ON DELETE RESTRICT), aplica la migración una sola vez:
-
-       psql -h localhost -U students_user -d students_db \
-           -f sql/migracion_cascade.sql
+   El esquema definitivo es UN SOLO archivo: sql/schema.sql (ya incluye el
+   ON DELETE CASCADE y la restricción UNIQUE). No hay migración aparte.
 
 Regla de negocio (inscripción de un estudiante a otra carrera):
    - Si un estudiante ya está inscripto en una carrera y se intenta

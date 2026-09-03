@@ -1,4 +1,12 @@
-const API_BASE = "/student-crud";
+// API_BASE dinamico: funciona en docker (raiz "/") y en modo local
+// (servido bajo "/student-crud"). Se deriva de la ubicacion de este script.
+const API_BASE = (() => {
+  const src =
+    (document.currentScript && document.currentScript.src) ||
+    window.location.href;
+  const path = new URL(src, window.location.origin).pathname;
+  return path.replace(/\/js\/[^/]+$/, "").replace(/\/$/, "");
+})();
 
 const form = document.getElementById("inscripcion-form");
 const carreraSelect = document.getElementById("carrera");

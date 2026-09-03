@@ -6,7 +6,18 @@
 
     <title>Panel Administrativo</title>
 
-    <link rel="stylesheet" href="/student-crud/css/styles.css" />
+    <script>
+      // Calcula el contexto de la app (raiz en local o docker) quitando el
+      // segmento /admin del path actual, y lo usa como base para las rutas
+      // relativas (css/js). Asi funciona igual con o sin la barra final.
+      (function () {
+        var base = document.location.pathname.replace(/\/admin\/?.*$/, "") || "/";
+        if (base.charAt(base.length - 1) !== "/") base += "/";
+        document.write('<base href="' + base + '" />');
+      })();
+    </script>
+
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
 
   <body>
@@ -215,6 +226,6 @@
       </section>
     </main>
 
-    <script src="/student-crud/js/admin.js"></script>
+    <script src="js/admin.js"></script>
   </body>
 </html>
