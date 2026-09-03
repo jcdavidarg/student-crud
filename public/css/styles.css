@@ -395,6 +395,12 @@ button:disabled {
     padding: 20px;
   }
 
+  .message {
+    font-size: 14px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+  }
+
   .admin-form-actions {
     flex-direction: column;
   }

@@ -16,20 +16,32 @@ const inscripcionesContainer = document.getElementById(
   "inscripciones-container",
 );
 
-const mensaje = document.getElementById("mensaje");
+const mensajes = {
+  estudiantes: document.getElementById("mensaje-estudiantes"),
+  carreras: document.getElementById("mensaje-carreras"),
+  inscripciones: document.getElementById("mensaje-inscripciones"),
+};
 
 // ======================================================
 // MENSAJES
 // ======================================================
 
-function mostrarMensaje(texto, tipo) {
-  mensaje.textContent = texto;
-  mensaje.className = `message ${tipo}`;
+function ocultarMensajesTodos() {
+  Object.keys(mensajes).forEach((seccion) => {
+    mensajes[seccion].textContent = "";
+    mensajes[seccion].className = "message";
+  });
 }
 
-function ocultarMensaje() {
-  mensaje.textContent = "";
-  mensaje.className = "message";
+function mostrarMensajeEn(seccion, texto, tipo) {
+  ocultarMensajesTodos();
+  mensajes[seccion].textContent = texto;
+  mensajes[seccion].className = `message ${tipo}`;
+}
+
+function ocultarMensajeEn(seccion) {
+  mensajes[seccion].textContent = "";
+  mensajes[seccion].className = "message";
 }
 
 // ======================================================
@@ -231,7 +243,7 @@ function renderizarEstudiantes(estudiantes) {
 
 async function cargarEstudiantes() {
   try {
-    ocultarMensaje();
+    ocultarMensajeEn("estudiantes");
 
     const estudiantes = await obtenerEstudiantes();
 
@@ -239,7 +251,7 @@ async function cargarEstudiantes() {
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("estudiantes", error.message, "error");
   }
 }
 
@@ -314,7 +326,7 @@ estudianteForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   try {
-    ocultarMensaje();
+    ocultarMensajeEn("estudiantes");
 
     const datos = {
       nombre: document.getElementById("estudiante-nombre").value.trim(),
@@ -335,11 +347,11 @@ estudianteForm.addEventListener("submit", async function (event) {
     if (estudianteEditandoId) {
       await actualizarEstudiante(estudianteEditandoId, datos);
 
-      mostrarMensaje("Estudiante actualizado correctamente.", "success");
+      mostrarMensajeEn("estudiantes", "Estudiante actualizado correctamente.", "success");
     } else {
       await crearEstudiante(datos);
 
-      mostrarMensaje("Estudiante creado correctamente.", "success");
+      mostrarMensajeEn("estudiantes", "Estudiante creado correctamente.", "success");
     }
 
     ocultarFormularioEstudiante();
@@ -350,7 +362,7 @@ estudianteForm.addEventListener("submit", async function (event) {
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("estudiantes", error.message, "error");
   }
 });
 
@@ -371,14 +383,14 @@ estudiantesContainer.addEventListener("click", async function (event) {
 
       mostrarFormularioEstudiante(estudiante);
 
-      window.scrollTo({
-        top: 0,
+      formEstudiante.scrollIntoView({
         behavior: "smooth",
+        block: "start",
       });
     } catch (error) {
       console.error(error);
 
-      mostrarMensaje(error.message, "error");
+      mostrarMensajeEn("estudiantes", error.message, "error");
     }
   }
 
@@ -394,7 +406,7 @@ estudiantesContainer.addEventListener("click", async function (event) {
     try {
       await eliminarEstudiante(id);
 
-      mostrarMensaje("Estudiante eliminado correctamente.", "success");
+      mostrarMensajeEn("estudiantes", "Estudiante eliminado correctamente.", "success");
 
       await cargarEstudiantes();
 
@@ -402,7 +414,7 @@ estudiantesContainer.addEventListener("click", async function (event) {
     } catch (error) {
       console.error(error);
 
-      mostrarMensaje(error.message, "error");
+      mostrarMensajeEn("estudiantes", error.message, "error");
     }
   }
 });
@@ -445,12 +457,12 @@ btnBuscarEstudiante.addEventListener("click", async function () {
   const valor = buscarEstudianteInput.value.trim();
 
   if (!valor) {
-    mostrarMensaje("Ingresá un valor para buscar.", "error");
+    mostrarMensajeEn("estudiantes", "Ingresá un valor para buscar.", "error");
     return;
   }
 
   try {
-    ocultarMensaje();
+    ocultarMensajeEn("estudiantes");
 
     let estudiante = null;
 
@@ -463,7 +475,7 @@ btnBuscarEstudiante.addEventListener("click", async function () {
     }
 
     if (!estudiante) {
-      mostrarMensaje("No se encontró el estudiante.", "error");
+      mostrarMensajeEn("estudiantes", "No se encontró el estudiante.", "error");
 
       estudiantesContainer.innerHTML = "";
 
@@ -474,7 +486,7 @@ btnBuscarEstudiante.addEventListener("click", async function () {
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("estudiantes", error.message, "error");
   }
 });
 
@@ -655,7 +667,7 @@ async function cargarCarreras() {
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("carreras", error.message, "error");
   }
 }
 
@@ -703,7 +715,7 @@ carreraForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   try {
-    ocultarMensaje();
+    ocultarMensajeEn("carreras");
 
     const datos = {
       nombre: document.getElementById("carrera-nombre").value.trim(),
@@ -722,11 +734,11 @@ carreraForm.addEventListener("submit", async function (event) {
     if (carreraEditandoId) {
       await actualizarCarrera(carreraEditandoId, datos);
 
-      mostrarMensaje("Carrera actualizada correctamente.", "success");
+      mostrarMensajeEn("carreras", "Carrera actualizada correctamente.", "success");
     } else {
       await crearCarrera(datos);
 
-      mostrarMensaje("Carrera creada correctamente.", "success");
+      mostrarMensajeEn("carreras", "Carrera creada correctamente.", "success");
     }
 
     ocultarFormularioCarrera();
@@ -737,7 +749,7 @@ carreraForm.addEventListener("submit", async function (event) {
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("carreras", error.message, "error");
   }
 });
 
@@ -754,14 +766,14 @@ carrerasContainer.addEventListener("click", async function (event) {
 
       mostrarFormularioCarrera(carrera);
 
-      window.scrollTo({
-        top: 0,
+      formCarrera.scrollIntoView({
         behavior: "smooth",
+        block: "start",
       });
     } catch (error) {
       console.error(error);
 
-      mostrarMensaje(error.message, "error");
+      mostrarMensajeEn("carreras", error.message, "error");
     }
 
     return;
@@ -779,7 +791,7 @@ carrerasContainer.addEventListener("click", async function (event) {
     try {
       await eliminarCarrera(id);
 
-      mostrarMensaje("Carrera eliminada correctamente.", "success");
+      mostrarMensajeEn("carreras", "Carrera eliminada correctamente.", "success");
 
       await cargarCarreras();
 
@@ -787,7 +799,7 @@ carrerasContainer.addEventListener("click", async function (event) {
     } catch (error) {
       console.error(error);
 
-      mostrarMensaje(error.message, "error");
+      mostrarMensajeEn("carreras", error.message, "error");
     }
   }
 });
@@ -948,7 +960,7 @@ async function cargarInscripciones() {
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("inscripciones", error.message, "error");
   }
 }
 
@@ -982,13 +994,13 @@ inscripcionesContainer.addEventListener("click", async function (event) {
   try {
     await eliminarInscripcion(id);
 
-    mostrarMensaje("Inscripción eliminada correctamente.", "success");
+    mostrarMensajeEn("inscripciones", "Inscripción eliminada correctamente.", "success");
 
     await cargarInscripciones();
   } catch (error) {
     console.error(error);
 
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("inscripciones", error.message, "error");
   }
 });
 
@@ -1058,12 +1070,12 @@ function ocultarFormularioInscripcion() {
 
 btnNuevaInscripcion.addEventListener("click", async function () {
   try {
-    ocultarMensaje();
+    ocultarMensajeEn("inscripciones");
     await cargarOpcionesInscripcion();
     mostrarFormularioInscripcion();
   } catch (error) {
     console.error(error);
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("inscripciones", error.message, "error");
   }
 });
 
@@ -1075,7 +1087,7 @@ inscripcionForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   try {
-    ocultarMensaje();
+    ocultarMensajeEn("inscripciones");
 
     const datos = {
       estudiante_id: selectEstudianteInscripcion.value,
@@ -1092,14 +1104,14 @@ inscripcionForm.addEventListener("submit", async function (event) {
 
     await crearInscripcionAdmin(datos);
 
-    mostrarMensaje("Inscripción creada correctamente.", "success");
+    mostrarMensajeEn("inscripciones", "Inscripción creada correctamente.", "success");
 
     ocultarFormularioInscripcion();
 
     await cargarInscripciones();
   } catch (error) {
     console.error(error);
-    mostrarMensaje(error.message, "error");
+    mostrarMensajeEn("inscripciones", error.message, "error");
   }
 });
 
