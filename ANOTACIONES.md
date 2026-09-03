@@ -216,4 +216,22 @@ Estructura de tablas (3 tablas, 1 estudiante -> 1 carrera):
    un estudiante solo pueda estar inscripto en una única carrera, mientras
    que una carrera puede tener muchos estudiantes.
 
+   Borrado en cascada:
+   - Al borrar un estudiante -> se borran sus inscripciones (CASCADE).
+   - Al borrar una carrera   -> se borran sus inscripciones (CASCADE).
+
+   Si ya creaste la base con una versión anterior del schema (donde
+   carrera_id tenía ON DELETE RESTRICT), aplica la migración una sola vez:
+
+       psql -h localhost -U students_user -d students_db \
+           -f sql/migracion_cascade.sql
+
+Regla de negocio (inscripción de un estudiante a otra carrera):
+   - Si un estudiante ya está inscripto en una carrera y se intenta
+     inscribir en OTRA, el backend responde 409 con el mensaje:
+       "No se puede inscribir a otra carrera: el estudiante ya está
+        inscripto en '<nombre de la carrera actual>'."
+   - Si intenta inscribirse en la MISMA carrera, responde 409 con:
+       "El estudiante ya está inscripto en esta carrera."
+
 
