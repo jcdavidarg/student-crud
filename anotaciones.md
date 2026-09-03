@@ -43,153 +43,27 @@ Script SQL.
 
 README con pasos para ejecutarlo.
 
-
-
-1 ARQUITECTURA
-
-┌─────────────────────────────┐
-│           FRONT             │
-│      HTML + CSS + JS        │
-│                             │
-│      /public                │
-└──────────────┬──────────────┘
-               │ HTTP / JSON
-               ▼
-┌─────────────────────────────┐
-│           BACK              │
-│           Perl              │
-│      REST API / CGI         │
-│                             │
-│      /api                   │
-└──────────────┬──────────────┘
-               │ DBI
-               ▼
-┌─────────────────────────────┐
-│        PostgreSQL           │
-│                             │
-│ estudiantes                 │
-│ materias                    │
-│ inscripciones               │
-└─────────────────────────────┘
-
-2 NODELADO DB
-
-ESTUDIANTE
-    │
-    │ 1
-    │
-    │ N
-INSCRIPCION
-    │
-    │ N
-    │
-    │ 1
-MATERIA
-
-
-
-2 ESTRUCTURA DE CARPETAS
-
-student-crud/
-│
-├── public/
-│   ├── index.html
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       └── app.js
-│
-├── cgi-bin/
-│   └── api/
-│       └── students.pl
-│
-├── lib/
-│   ├── DB.pm
-│   ├── Student.pm
-│   └── Response.pm
-│
-├── sql/
-│   └── schema.sql
-│
-└── config/
-    └── database.conf
-
-
-public → frontend
-
-cgi-bin → endpoints
-
-lib → lógica
-
-sql → base de datos
-
-config → configuración
-
-
-3 RESPONSABILIDADES
-
-                  HTTP
-                   │
-                   ▼
-            cgi-bin/students.pl
-                   │
-                   ▼
-             Student.pm
-            (negocio/modelo)
-                   │
-                   ▼
-                DB.pm
-          (acceso a PostgreSQL)
-                   │
-                   ▼
-              PostgreSQL
-
-
-
-
-Frontend
-   ↓
-HTTP
-   ↓
-Endpoint Perl
-   ↓
-Validación
-   ↓
-Lógica de negocio
-   ↓
-Acceso a DB
-   ↓
-PostgreSQL
-
-
-
-4 INSTALACIÓN Y EJECUCIÓN
-
-Requisitos:
-    - Perl 5 con módulos: DBI, DBD::Pg, CGI, JSON::PP
-    - PostgreSQL
-    - Servidor web con soporte CGI (Apache recomendado)
+Requisitos: - Perl 5 con módulos: DBI, DBD::Pg, CGI, JSON::PP - PostgreSQL - Servidor web con soporte CGI (Apache recomendado)
 
 1. Configurar las credenciales en .env (copiar desde .env.example):
 
-       cp .env.example .env
+   cp .env.example .env
 
 2. Preparar la base (crea rol + base + aplica sql/schema.sql, idempotente):
 
-       scripts/setup-db.sh
+   scripts/setup-db.sh
 
 3. Arrancar (detecta Docker si está disponible, sino modo local):
 
-       scripts/start.sh
+   scripts/start.sh
 
 4. Acceder:
-
    - Parte pública (formulario de inscripción):
-        local:  /student-crud/
-        docker: /
+     local: /student-crud/
+     docker: /
    - Parte privada (ABM, protegida por .htaccess):
-        local:  /student-crud/admin
-        docker: /admin
+     local: /student-crud/admin
+     docker: /admin
 
 Estructura de tablas (3 tablas, 1 estudiante -> 1 carrera):
 
@@ -198,23 +72,23 @@ Estructura de tablas (3 tablas, 1 estudiante -> 1 carrera):
     inscripciones (id, estudiante_id UNIQUE -> estudiantes.id,
                    carrera_id -> carreras.id)
 
-   La restricción UNIQUE sobre inscripciones.estudiante_id garantiza que
-   un estudiante solo pueda estar inscripto en una única carrera, mientras
-   que una carrera puede tener muchos estudiantes.
+La restricción UNIQUE sobre inscripciones.estudiante_id garantiza que
+un estudiante solo pueda estar inscripto en una única carrera, mientras
+que una carrera puede tener muchos estudiantes.
 
-   Borrado en cascada:
-   - Al borrar un estudiante -> se borran sus inscripciones (CASCADE).
-   - Al borrar una carrera   -> se borran sus inscripciones (CASCADE).
+Borrado en cascada:
 
-   El esquema definitivo es UN SOLO archivo: sql/schema.sql (ya incluye el
-   ON DELETE CASCADE y la restricción UNIQUE). No hay migración aparte.
+- Al borrar un estudiante -> se borran sus inscripciones (CASCADE).
+- Al borrar una carrera -> se borran sus inscripciones (CASCADE).
+
+El esquema definitivo es UN SOLO archivo: sql/schema.sql (ya incluye el
+ON DELETE CASCADE y la restricción UNIQUE). No hay migración aparte.
 
 Regla de negocio (inscripción de un estudiante a otra carrera):
-   - Si un estudiante ya está inscripto en una carrera y se intenta
-     inscribir en OTRA, el backend responde 409 con el mensaje:
-       "No se puede inscribir a otra carrera: el estudiante ya está
-        inscripto en '<nombre de la carrera actual>'."
-   - Si intenta inscribirse en la MISMA carrera, responde 409 con:
-       "El estudiante ya está inscripto en esta carrera."
 
-
+- Si un estudiante ya está inscripto en una carrera y se intenta
+  inscribir en OTRA, el backend responde 409 con el mensaje:
+  "No se puede inscribir a otra carrera: el estudiante ya está
+  inscripto en '<nombre de la carrera actual>'."
+- Si intenta inscribirse en la MISMA carrera, responde 409 con:
+  "El estudiante ya está inscripto en esta carrera."

@@ -266,6 +266,19 @@ Para validar los módulos Perl:
 perl -e 'use DBI; use DBD::Pg; use CGI; use JSON::PP; print "OK\n"'
 ```
 
+> **¿Dónde ubico el proyecto?** Perl corre en Linux, Windows y macOS, pero la
+> combinación Apache + CGI que usa el modo local funciona mejor en Linux/UNIX.
+> Docker no es obligatorio en Linux, pero en **Windows/macOS** recomendamos
+> usar el modo Docker (abajo), que evita instalar Perl/Apache/PostgreSQL en el
+> sistema.
+>
+> En Linux por convención de Apache conviene clonar el repo en **`/var/www/student-crud`**
+> (dueño `www-data`, sin peleas de permisos). No es obligatorio: el proyecto
+> puede vivir en **cualquier carpeta** (p. ej. `~/student-crud`) siempre que el
+> `DocumentRoot`/`Alias` de Apache apunte a esa carpeta y `www-data` tenga
+> permisos de lectura para atravesar el path (por ejemplo `chmod o+rX` sobre la
+> ruta). El `.htaccess` usa rutas relativas, así que no hay que tocar el código.
+
 ### 2. Configurar el entorno
 
 ```bash
@@ -334,6 +347,13 @@ scripts/start.sh local
 ## Ejecución: modo Docker
 
 Requisitos: **Docker** y **Docker Compose** instalados y corriendo.
+
+> **¿Dónde ubico el proyecto?** En el modo Docker la app corre dentro de
+> contenedores, así que el repo puede estar en **cualquier carpeta** (p. ej.
+> `~/student-crud`), incluso en **Windows/macOS** con Docker Desktop. No es
+> necesario instalar Perl/Apache/PostgreSQL en el sistema ni ubicar el proyecto
+> en `/var/www`: solo se necesita tener Docker y ejecutar los scripts desde la
+> raíz del repo.
 
 ### 1. Configurar el entorno
 
