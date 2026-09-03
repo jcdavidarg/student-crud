@@ -140,86 +140,41 @@ sub create_inscripcion_publica {
         };
     }
 
-    # 2. Buscar estudiante por DNI
-    my $student_by_dni =
+    # 2. Verificar que el DNI no exista (solo se permiten estudiantes nuevos)
+    my $existing_dni =
       $self->{student_repository}->find_by_dni($student_data->{dni});
 
-    # 3. Buscar estudiante por EMAIL
-    my $student_by_email =
-      $self->{student_repository}->find_by_email($student_data->{email});
-
-    # 4. Si DNI y EMAIL existen pero pertenecen a estudiantes diferentes
-    if (   $student_by_dni
-        && $student_by_email
-        && $student_by_dni->{id} != $student_by_email->{id})
-    {
-
+    if ($existing_dni) {
         return {
             success => 0,
-            reason  => 'dni_email_conflict'
+            reason  => 'dni_already_exists'
         };
     }
 
-    my $estudiante;
-    my $estudiante_id;
+    # 3. Verificar que el email no exista (solo se permiten estudiantes nuevos)
+    my $existing_email =
+      $self->{student_repository}->find_by_email($student_data->{email});
 
-    # 5. Si existe por DNI
-    if ($student_by_dni) {
-
-        $estudiante    = $student_by_dni;
-        $estudiante_id = $student_by_dni->{id};
-
-        # Actualizar los datos del estudiante
-        my $updated =
-          $self->{student_repository}->update($estudiante_id, $student_data);
-
-        if (!$updated) {
-            return {
-                success => 0,
-                reason  => 'database_error'
-            };
-        }
-
-        $estudiante = $updated;
+    if ($existing_email) {
+        return {
+            success => 0,
+            reason  => 'email_already_exists'
+        };
     }
 
-    # 6. Si no existe por DNI pero existe por EMAIL
-    elsif ($student_by_email) {
+    # 4. Crear el estudiante (solo si DNI y email son nuevos)
+    my $created = $self->{student_repository}->create($student_data);
 
-        $estudiante    = $student_by_email;
-        $estudiante_id = $student_by_email->{id};
-
-        # Actualizar los datos del estudiante
-        my $updated =
-          $self->{student_repository}->update($estudiante_id, $student_data);
-
-        if (!$updated) {
-            return {
-                success => 0,
-                reason  => 'database_error'
-            };
-        }
-
-        $estudiante = $updated;
+    if (!$created) {
+        return {
+            success => 0,
+            reason  => 'database_error'
+        };
     }
 
-    # 7. Si no existe ni por DNI ni por EMAIL, crear estudiante
-    else {
+    my $estudiante_id = $created->{id};
 
-        my $created = $self->{student_repository}->create($student_data);
-
-        if (!$created) {
-            return {
-                success => 0,
-                reason  => 'database_error'
-            };
-        }
-
-        $estudiante    = $created;
-        $estudiante_id = $created->{id};
-    }
-
-    # 8. Verificar que no exista la inscripción
+    # 5. Verificar que no exista la inscripción (defensa en profundidad)
     my $verificacion =
       $self->_verificar_inscripcion_existente($estudiante_id, $carrera_id);
 
@@ -227,7 +182,7 @@ sub create_inscripcion_publica {
         return $verificacion;
     }
 
-    # 9. Crear inscripción
+    # 6. Crear inscripción
     my $created_inscripcion;
 
     eval {
@@ -242,7 +197,7 @@ sub create_inscripcion_publica {
         };
     }
 
-    # 10. Obtener inscripción completa
+    # 7. Obtener inscripción completa
     my $inscripcion =
       $self->{inscripcion_repository}->find_by_id($created_inscripcion->{id});
 

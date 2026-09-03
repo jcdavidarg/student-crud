@@ -24,6 +24,24 @@ if ($method eq 'POST' || $method eq 'PUT') {
 
 my $cgi = CGI->new;
 
+# Extrae un parametro del query string. No puede usarse CGI->new para
+# metodos con body (PUT/POST): CGI.pm asume que los parametros vienen del
+# body y devuelve undef aunque se le pase QUERY_STRING explícitamente.
+sub query_param {
+    my ($name) = @_;
+
+    my $qs = $ENV{'QUERY_STRING'} || '';
+
+    if ($qs =~ /(?:^|&)\Q$name\E=([^&]*)/) {
+        my $value = $1;
+        $value =~ tr/+/ /;
+        $value =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/ge;
+        return $value;
+    }
+
+    return undef;
+}
+
 my $dbh = DB::connect();
 
 my $repository = StudentRepository->new($dbh);
@@ -177,7 +195,7 @@ elsif ($method eq 'POST') {
 }    # UPDATE STUDENT
 elsif ($method eq 'PUT') {
 
-    my $id = $cgi->param('id');
+    my $id = query_param('id');
 
     unless (defined $id) {
         send_error("400 Bad Request", "El id es obligatorio");

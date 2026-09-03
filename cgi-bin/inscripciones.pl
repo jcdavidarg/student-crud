@@ -210,10 +210,17 @@ elsif ($method eq 'POST') {
                 exit;
             }
 
-            if ($result->{reason} eq 'dni_email_conflict') {
+            if ($result->{reason} eq 'dni_already_exists') {
 
                 send_error("409 Conflict",
-                    "El DNI y el email pertenecen a estudiantes diferentes");
+                    "El DNI ya está registrado. Solo se permite la inscripción de estudiantes nuevos.");
+                exit;
+            }
+
+            if ($result->{reason} eq 'email_already_exists') {
+
+                send_error("409 Conflict",
+                    "El email ya está registrado. Solo se permite la inscripción de estudiantes nuevos.");
                 exit;
             }
 
