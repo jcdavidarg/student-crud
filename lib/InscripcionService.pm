@@ -29,6 +29,42 @@ sub get_inscripcion {
     return $self->{inscripcion_repository}->find_by_id($id);
 }
 
+sub _verificar_inscripcion_existente {
+    my ($self, $estudiante_id, $carrera_id) = @_;
+
+    # ¿Está inscripto en la MISMA carrera?
+    my $misma =
+      $self->{inscripcion_repository}->find_by_student_and_career(
+        $estudiante_id, $carrera_id);
+
+    if ($misma) {
+        return {
+            success => 0,
+            reason  => 'inscripcion_already_exists',
+            carrera => {
+                id     => $carrera_id
+            }
+        };
+    }
+
+    # ¿Está inscripto en OTRA carrera?
+    my $otra = $self->{inscripcion_repository}->find_by_student($estudiante_id);
+
+    if ($otra) {
+        return {
+            success => 0,
+            reason  => 'inscripcion_en_otra_carrera',
+            carrera => {
+                id     => $otra->{carrera_id},
+                nombre => $otra->{carrera_nombre},
+                codigo => $otra->{carrera_codigo}
+            }
+        };
+    }
+
+    return { success => 1 };
+}
+
 sub create_inscripcion {
     my ($self, $estudiante_id, $carrera_id) = @_;
 
@@ -56,15 +92,11 @@ sub create_inscripcion {
 
     # 3. Verificar que no exista la inscripción
 
-    my $existing =
-      $self->{inscripcion_repository}
-      ->find_by_student_and_career($estudiante_id, $carrera_id);
+    my $verificacion =
+      $self->_verificar_inscripcion_existente($estudiante_id, $carrera_id);
 
-    if ($existing) {
-        return {
-            success => 0,
-            reason  => 'inscripcion_already_exists'
-        };
+    if (!$verificacion->{success}) {
+        return $verificacion;
     }
 
     # 4. Crear inscripción
@@ -187,16 +219,12 @@ sub create_inscripcion_publica {
         $estudiante_id = $created->{id};
     }
 
-    # 8. Verificar si ya está inscripto en la carrera
-    my $existing =
-      $self->{inscripcion_repository}
-      ->find_by_student_and_career($estudiante_id, $carrera_id);
+    # 8. Verificar que no exista la inscripción
+    my $verificacion =
+      $self->_verificar_inscripcion_existente($estudiante_id, $carrera_id);
 
-    if ($existing) {
-        return {
-            success => 0,
-            reason  => 'inscripcion_already_exists'
-        };
+    if (!$verificacion->{success}) {
+        return $verificacion;
     }
 
     # 9. Crear inscripción

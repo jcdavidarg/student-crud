@@ -96,6 +96,30 @@ sub find_by_student_and_career {
     return $sth->fetchrow_hashref();
 }
 
+sub find_by_student {
+    my ($self, $estudiante_id) = @_;
+
+    my $sql = '
+        SELECT
+            i.id,
+            i.estudiante_id,
+            i.carrera_id,
+            m.nombre AS carrera_nombre,
+            m.codigo AS carrera_codigo,
+            i.fecha_inscripcion
+        FROM inscripciones i
+        JOIN carreras m
+            ON m.id = i.carrera_id
+        WHERE i.estudiante_id = ?
+    ';
+
+    my $sth = $self->{dbh}->prepare($sql);
+
+    $sth->execute($estudiante_id);
+
+    return $sth->fetchrow_hashref();
+}
+
 sub create {
     my ($self, $estudiante_id, $carrera_id) = @_;
 
