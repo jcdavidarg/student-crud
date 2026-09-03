@@ -29,6 +29,42 @@ sub get_inscripcion {
     return $self->{inscripcion_repository}->find_by_id($id);
 }
 
+sub _verificar_inscripcion_existente {
+    my ($self, $estudiante_id, $carrera_id) = @_;
+
+    # ¿Está inscripto en la MISMA carrera?
+    my $misma =
+      $self->{inscripcion_repository}->find_by_student_and_career(
+        $estudiante_id, $carrera_id);
+
+    if ($misma) {
+        return {
+            success => 0,
+            reason  => 'inscripcion_already_exists',
+            carrera => {
+                id     => $carrera_id
+            }
+        };
+    }
+
+    # ¿Está inscripto en OTRA carrera?
+    my $otra = $self->{inscripcion_repository}->find_by_student($estudiante_id);
+
+    if ($otra) {
+        return {
+            success => 0,
+            reason  => 'inscripcion_en_otra_carrera',
+            carrera => {
+                id     => $otra->{carrera_id},
+                nombre => $otra->{carrera_nombre},
+                codigo => $otra->{carrera_codigo}
+            }
+        };
+    }
+
+    return { success => 1 };
+}
+
 sub create_inscripcion {
     my ($self, $estudiante_id, $carrera_id) = @_;
 
@@ -56,15 +92,11 @@ sub create_inscripcion {
 
     # 3. Verificar que no exista la inscripción
 
-    my $existing =
-      $self->{inscripcion_repository}
-      ->find_by_student_and_career($estudiante_id, $carrera_id);
+    my $verificacion =
+      $self->_verificar_inscripcion_existente($estudiante_id, $carrera_id);
 
-    if ($existing) {
-        return {
-            success => 0,
-            reason  => 'inscripcion_already_exists'
-        };
+    if (!$verificacion->{success}) {
+        return $verificacion;
     }
 
     # 4. Crear inscripción
@@ -108,98 +140,49 @@ sub create_inscripcion_publica {
         };
     }
 
-    # 2. Buscar estudiante por DNI
-    my $student_by_dni =
+    # 2. Verificar que el DNI no exista (solo se permiten estudiantes nuevos)
+    my $existing_dni =
       $self->{student_repository}->find_by_dni($student_data->{dni});
 
-    # 3. Buscar estudiante por EMAIL
-    my $student_by_email =
+    if ($existing_dni) {
+        return {
+            success => 0,
+            reason  => 'dni_already_exists'
+        };
+    }
+
+    # 3. Verificar que el email no exista (solo se permiten estudiantes nuevos)
+    my $existing_email =
       $self->{student_repository}->find_by_email($student_data->{email});
 
-    # 4. Si DNI y EMAIL existen pero pertenecen a estudiantes diferentes
-    if (   $student_by_dni
-        && $student_by_email
-        && $student_by_dni->{id} != $student_by_email->{id})
-    {
-
+    if ($existing_email) {
         return {
             success => 0,
-            reason  => 'dni_email_conflict'
+            reason  => 'email_already_exists'
         };
     }
 
-    my $estudiante;
-    my $estudiante_id;
+    # 4. Crear el estudiante (solo si DNI y email son nuevos)
+    my $created = $self->{student_repository}->create($student_data);
 
-    # 5. Si existe por DNI
-    if ($student_by_dni) {
-
-        $estudiante    = $student_by_dni;
-        $estudiante_id = $student_by_dni->{id};
-
-        # Actualizar los datos del estudiante
-        my $updated =
-          $self->{student_repository}->update($estudiante_id, $student_data);
-
-        if (!$updated) {
-            return {
-                success => 0,
-                reason  => 'database_error'
-            };
-        }
-
-        $estudiante = $updated;
-    }
-
-    # 6. Si no existe por DNI pero existe por EMAIL
-    elsif ($student_by_email) {
-
-        $estudiante    = $student_by_email;
-        $estudiante_id = $student_by_email->{id};
-
-        # Actualizar los datos del estudiante
-        my $updated =
-          $self->{student_repository}->update($estudiante_id, $student_data);
-
-        if (!$updated) {
-            return {
-                success => 0,
-                reason  => 'database_error'
-            };
-        }
-
-        $estudiante = $updated;
-    }
-
-    # 7. Si no existe ni por DNI ni por EMAIL, crear estudiante
-    else {
-
-        my $created = $self->{student_repository}->create($student_data);
-
-        if (!$created) {
-            return {
-                success => 0,
-                reason  => 'database_error'
-            };
-        }
-
-        $estudiante    = $created;
-        $estudiante_id = $created->{id};
-    }
-
-    # 8. Verificar si ya está inscripto en la carrera
-    my $existing =
-      $self->{inscripcion_repository}
-      ->find_by_student_and_career($estudiante_id, $carrera_id);
-
-    if ($existing) {
+    if (!$created) {
         return {
             success => 0,
-            reason  => 'inscripcion_already_exists'
+            reason  => 'database_error'
         };
     }
 
-    # 9. Crear inscripción
+    my $estudiante_id = $created->{id};
+
+    # 5. Verificar que no exista la inscripción (defensa en profundidad)
+    my $verificacion =
+      $self->_verificar_inscripcion_existente($estudiante_id, $carrera_id);
+
+    if (!$verificacion->{success}) {
+        return $verificacion;
+    }
+
+    # 6. Crear inscripción
     my $created_inscripcion;
 
     eval {
@@ -214,7 +197,7 @@ sub create_inscripcion_publica {
         };
     }
 
-    # 10. Obtener inscripción completa
+    # 7. Obtener inscripción completa
     my $inscripcion =
       $self->{inscripcion_repository}->find_by_id($created_inscripcion->{id});
 

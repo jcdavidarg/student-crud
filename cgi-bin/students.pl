@@ -24,6 +24,24 @@ if ($method eq 'POST' || $method eq 'PUT') {
 
 my $cgi = CGI->new;
 
+# Extrae un parametro del query string. No puede usarse CGI->new para
+# metodos con body (PUT/POST): CGI.pm asume que los parametros vienen del
+# body y devuelve undef aunque se le pase QUERY_STRING explícitamente.
+sub query_param {
+    my ($name) = @_;
+
+    my $qs = $ENV{'QUERY_STRING'} || '';
+
+    if ($qs =~ /(?:^|&)\Q$name\E=([^&]*)/) {
+        my $value = $1;
+        $value =~ tr/+/ /;
+        $value =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/ge;
+        return $value;
+    }
+
+    return undef;
+}
+
 my $dbh = DB::connect();
 
 my $repository = StudentRepository->new($dbh);
@@ -70,7 +88,7 @@ sub send_json {
     my ($status, $data) = @_;
 
     print "Status: $status\n";
-    print "Content-Type: application/json\n\n";
+    print "Content-Type: application/json; charset=utf-8\n\n";
 
     print encode_json($data);
 }
@@ -114,7 +132,7 @@ if ($method eq 'GET') {
 
         my $students = $service->get_students();
 
-        print "Content-Type: application/json\n\n";
+        print "Content-Type: application/json; charset=utf-8\n\n";
 
         print encode_json($students);
 
@@ -177,7 +195,7 @@ elsif ($method eq 'POST') {
 }    # UPDATE STUDENT
 elsif ($method eq 'PUT') {
 
-    my $id = $cgi->url_param('id');
+    my $id = query_param('id');
 
     unless (defined $id) {
         send_error("400 Bad Request", "El id es obligatorio");
@@ -229,7 +247,7 @@ elsif ($method eq 'PUT') {
 }    # DELETE STUDENT
 elsif ($method eq 'DELETE') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
         send_error("400 Bad Request", "El id es obligatorio");
@@ -250,7 +268,7 @@ elsif ($method eq 'DELETE') {
 }
 else {
 
-    print "Content-Type: application/json\n\n";
+    print "Content-Type: application/json; charset=utf-8\n\n";
 
     print encode_json(
         {
@@ -261,41 +279,4 @@ else {
 
 $dbh->disconnect();
 
-=pod
-my $students = [
-    {
-        id       => 1,
-        nombre   => 'David',
-        apellido => 'Perez'
-    },
-    {
-        id       => 2,
-        nombre   => 'Juan',
-        apellido => 'Gomez'
-    }
-];
-=cut
 
-=pod
-my $dbh = DB::connect();
-
-my $repository = StudentRepository->new($dbh);
-my $service    = StudentService->new($repository);
-
-my $students = $service->get_students();
-
-print "Content-Type: application/json\n\n";
-
-print encode_json($students);
-
-$dbh->disconnect();
-=cut
-
-=pod
-my $cgi = CGI->new;
-
-my $method = $cgi->request_method;
-
-print "Content-Type: text/plain\n\n";
-print "Metodo HTTP: $method\n";
-=cut

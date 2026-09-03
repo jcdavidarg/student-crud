@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
@@ -42,7 +43,7 @@ sub send_json {
     my ($status, $data) = @_;
 
     print "Status: $status\n";
-    print "Content-Type: application/json\n\n";
+    print "Content-Type: application/json; charset=utf-8\n\n";
     print encode_json($data);
 }
 
@@ -209,17 +210,33 @@ elsif ($method eq 'POST') {
                 exit;
             }
 
-            if ($result->{reason} eq 'dni_email_conflict') {
+            if ($result->{reason} eq 'dni_already_exists') {
 
                 send_error("409 Conflict",
-                    "El DNI y el email pertenecen a estudiantes diferentes");
+                    "El DNI ya está registrado. Solo se permite la inscripción de estudiantes nuevos.");
+                exit;
+            }
+
+            if ($result->{reason} eq 'email_already_exists') {
+
+                send_error("409 Conflict",
+                    "El email ya está registrado. Solo se permite la inscripción de estudiantes nuevos.");
                 exit;
             }
 
             if ($result->{reason} eq 'inscripcion_already_exists') {
 
                 send_error("409 Conflict",
-                    "El estudiante ya esta inscripto en esta carrera");
+                    "El estudiante ya está inscripto en esta carrera.");
+                exit;
+            }
+
+            if ($result->{reason} eq 'inscripcion_en_otra_carrera') {
+
+                my $nombre_carrera = $result->{carrera}->{nombre} || 'otra carrera';
+
+                send_error("409 Conflict",
+                    "No se puede inscribir a otra carrera: el estudiante ya está inscripto en '$nombre_carrera'.");
                 exit;
             }
 
@@ -279,7 +296,16 @@ elsif ($method eq 'POST') {
             if ($result->{reason} eq 'inscripcion_already_exists') {
 
                 send_error("409 Conflict",
-                    "El estudiante ya esta inscripto en esta carrera");
+                    "El estudiante ya está inscripto en esta carrera.");
+                exit;
+            }
+
+            if ($result->{reason} eq 'inscripcion_en_otra_carrera') {
+
+                my $nombre_carrera = $result->{carrera}->{nombre} || 'otra carrera';
+
+                send_error("409 Conflict",
+                    "No se puede inscribir a otra carrera: el estudiante ya está inscripto en '$nombre_carrera'.");
                 exit;
             }
 
@@ -299,7 +325,7 @@ elsif ($method eq 'POST') {
 
 elsif ($method eq 'DELETE') {
 
-    my $id = $cgi->url_param('id');
+    my $id = $cgi->param('id');
 
     unless (defined $id) {
 

@@ -6,7 +6,18 @@
 
     <title>Panel Administrativo</title>
 
-    <link rel="stylesheet" href="/student-crud/css/styles.css" />
+    <script>
+      // Calcula el contexto de la app (raiz en local o docker) quitando el
+      // segmento /admin del path actual, y lo usa como base para las rutas
+      // relativas (css/js). Asi funciona igual con o sin la barra final.
+      (function () {
+        var base = document.location.pathname.replace(/\/admin\/?.*$/, "") || "/";
+        if (base.charAt(base.length - 1) !== "/") base += "/";
+        document.write('<base href="' + base + '" />');
+      })();
+    </script>
+
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
 
   <body>
@@ -32,6 +43,8 @@
               Nuevo estudiante
             </button>
           </div>
+
+          <div id="mensaje-estudiantes" class="message" role="alert"></div>
 
           <div class="search-box">
             <select id="tipo-busqueda-estudiante">
@@ -129,6 +142,8 @@
             <button type="button" id="btn-nueva-carrera">Nueva carrera</button>
           </div>
 
+          <div id="mensaje-carreras" class="message" role="alert"></div>
+
           <div id="form-carrera" class="admin-form hidden">
             <h3>Nueva carrera</h3>
 
@@ -169,22 +184,48 @@
               <p>Consultá y administrá las inscripciones.</p>
             </div>
 
-            <button type="button" id="btn-listar-inscripciones">
-              Actualizar
+            <button type="button" id="btn-nueva-inscripcion">
+              Nueva inscripción
             </button>
+          </div>
+
+          <div id="mensaje-inscripciones" class="message" role="alert"></div>
+
+          <div id="form-inscripcion" class="admin-form hidden">
+            <h3>Nueva inscripción</h3>
+
+            <form id="inscripcion-form">
+              <div class="form-group">
+                <label for="inscripcion-estudiante">Estudiante</label>
+
+                <select id="inscripcion-estudiante" required>
+                  <option value="">Seleccioná un estudiante...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="inscripcion-carrera">Carrera</label>
+
+                <select id="inscripcion-carrera" required>
+                  <option value="">Seleccioná una carrera...</option>
+                </select>
+              </div>
+
+              <div class="admin-form-actions">
+                <button type="submit">Guardar inscripción</button>
+
+                <button type="button" id="btn-cancelar-inscripcion">
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
 
           <div id="inscripciones-container" class="table-container"></div>
         </section>
-
-        <!-- ========================= -->
-        <!-- MENSAJES -->
-        <!-- ========================= -->
-
-        <div id="mensaje" class="message" role="alert"></div>
       </section>
     </main>
 
-    <script src="/student-crud/js/admin.js"></script>
+    <script src="js/admin.js"></script>
   </body>
 </html>

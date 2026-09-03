@@ -3,10 +3,7 @@ package Student;
 use strict;
 use warnings;
 
-my $global = 1;
-
 sub new {
-
 
     my ($class, $nombre, $apellido, $dni, $email, $nacionalidad, $telefono) =
       @_;
@@ -21,13 +18,6 @@ sub new {
     };
 
     return bless $self, $class;
-}
-
-sub global {
-
-    # Retorna la variable de clase, no requiere buscar en $self
-    $global++;
-    return $global . "\n";
 }
 
 sub nombre {
