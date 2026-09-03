@@ -337,6 +337,8 @@ estudianteForm.addEventListener("submit", async function (event) {
     ocultarFormularioEstudiante();
 
     await cargarEstudiantes();
+
+    await refrescarDependencias();
   } catch (error) {
     console.error(error);
 
@@ -387,6 +389,8 @@ estudiantesContainer.addEventListener("click", async function (event) {
       mostrarMensaje("Estudiante eliminado correctamente.", "success");
 
       await cargarEstudiantes();
+
+      await refrescarDependencias();
     } catch (error) {
       console.error(error);
 
@@ -720,6 +724,8 @@ carreraForm.addEventListener("submit", async function (event) {
     ocultarFormularioCarrera();
 
     await cargarCarreras();
+
+    await refrescarDependencias();
   } catch (error) {
     console.error(error);
 
@@ -768,6 +774,8 @@ carrerasContainer.addEventListener("click", async function (event) {
       mostrarMensaje("Carrera eliminada correctamente.", "success");
 
       await cargarCarreras();
+
+      await refrescarDependencias();
     } catch (error) {
       console.error(error);
 
@@ -936,13 +944,17 @@ async function cargarInscripciones() {
   }
 }
 
-btnListarInscripciones.addEventListener("click", async function () {
-  await cargarInscripciones();
-});
+async function refrescarDependencias() {
+  try {
+    await cargarInscripciones();
 
-btnListarInscripciones.addEventListener("click", async function () {
-  await cargarInscripciones();
-});
+    if (formInscripcion && !formInscripcion.classList.contains("hidden")) {
+      await cargarOpcionesInscripcion();
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 inscripcionesContainer.addEventListener("click", async function (event) {
   const btnEliminar = event.target.closest(".btn-eliminar-inscripcion");

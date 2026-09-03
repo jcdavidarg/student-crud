@@ -43,14 +43,6 @@ async function crearInscripcion(datos) {
   const data = await response.json();
 
   if (!response.ok) {
-    if (response.status === 409) {
-      if (data.error === "El estudiante ya está inscripto en esta carrera.") {
-        throw new Error(data.error);
-      }
-
-      throw new Error(data.error || "No se pudo realizar la inscripción.");
-    }
-
     throw new Error(data.error || "No se pudo realizar la inscripción.");
   }
 
